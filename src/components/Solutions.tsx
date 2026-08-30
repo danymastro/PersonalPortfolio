@@ -32,13 +32,13 @@ export const Solutions: React.FC<SolutionsProps> = () => {
   const trackRef = useRef<HTMLDivElement>(null);
   const [scrollDistance, setScrollDistance] = useState(0);
 
-  // Compute exact horizontal travel distance based on cards track
+  // Compute exact horizontal travel distance based on total track width vs viewport
   useEffect(() => {
     const updateDistance = () => {
       if (trackRef.current) {
         const trackWidth = trackRef.current.scrollWidth;
         const containerWidth = trackRef.current.parentElement?.clientWidth || window.innerWidth;
-        const dist = Math.max(0, trackWidth - containerWidth + 40);
+        const dist = Math.max(0, trackWidth - containerWidth + 60);
         setScrollDistance(dist);
       }
     };
@@ -48,13 +48,13 @@ export const Solutions: React.FC<SolutionsProps> = () => {
     return () => window.removeEventListener('resize', updateDistance);
   }, [solutions]);
 
-  // Track vertical scroll progress
+  // Track vertical scroll progress strictly while the section is pinned
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end end'],
   });
 
-  // Map scroll progress to horizontal translation
+  // Linear, smooth translation from 0 to exact negative scroll distance
   const x = useTransform(scrollYProgress, [0, 1], [0, -scrollDistance]);
 
   return (
@@ -62,19 +62,19 @@ export const Solutions: React.FC<SolutionsProps> = () => {
       ref={sectionRef}
       id="solutions"
       className="relative bg-[#FFFDF5] border-b-4 border-black"
-      style={{ height: `${Math.max(window.innerHeight * 2, scrollDistance + window.innerHeight)}px` }}
+      style={{ height: `${scrollDistance + window.innerHeight * 1.2}px` }}
     >
-      {/* Pinned Sticky Viewport */}
-      <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden py-8 select-none">
+      {/* Pinned Sticky Viewport: perfectly locked in place during horizontal scroll */}
+      <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden select-none z-10">
         {/* Ambient background blur blobs */}
         <div className="absolute -right-20 top-1/4 w-96 h-96 bg-[#C084FC] rounded-full mix-blend-multiply filter blur-3xl opacity-20 pointer-events-none" />
         <div className="absolute -left-20 bottom-1/4 w-96 h-96 bg-[#FDE047] rounded-full mix-blend-multiply filter blur-3xl opacity-25 pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto w-full px-4 sm:px-8 relative z-10 flex flex-col justify-center h-full">
-          {/* Original Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 shrink-0">
+        <div className="max-w-7xl mx-auto w-full px-4 sm:px-8 relative z-10 flex flex-col justify-center h-full max-h-screen py-6">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10 shrink-0">
             <div className="max-w-2xl">
-              <span className="inline-block px-3 py-1 rounded-full bg-[#F9A8D4] border-2 border-black text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-4 neo-shadow-sm text-black">
+              <span className="inline-block px-3 py-1 rounded-full bg-[#F9A8D4] border-2 border-black text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-3 neo-shadow-sm text-black">
                 {t.solutions.eyebrow}
               </span>
 
