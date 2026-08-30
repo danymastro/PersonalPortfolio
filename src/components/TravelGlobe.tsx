@@ -9,91 +9,91 @@ const countryMarkers: GlobeMarker[] = [
     lng: 12.5674,
     flag: '🇮🇹',
     label: 'Italia (Home)',
-    stemHeight: 1.28,
+    stemHeight: 1.14,
   },
   {
     lat: 37.0902,
     lng: -95.7129,
     flag: '🇺🇸',
     label: 'USA',
-    stemHeight: 1.22,
+    stemHeight: 1.10,
   },
   {
     lat: 51.1657,
     lng: 10.4515,
     flag: '🇩🇪',
     label: 'Germania',
-    stemHeight: 1.24,
+    stemHeight: 1.10,
   },
   {
     lat: 47.5162,
     lng: 14.5501,
     flag: '🇦🇹',
     label: 'Austria',
-    stemHeight: 1.34,
+    stemHeight: 1.16,
   },
   {
     lat: 46.8182,
     lng: 8.2275,
     flag: '🇨🇭',
     label: 'Svizzera',
-    stemHeight: 1.22,
+    stemHeight: 1.10,
   },
   {
     lat: 60.1282,
     lng: 18.6435,
     flag: '🇸🇪',
     label: 'Svezia',
-    stemHeight: 1.30,
+    stemHeight: 1.12,
   },
   {
     lat: 52.1326,
     lng: 5.2913,
     flag: '🇳🇱',
     label: 'Olanda',
-    stemHeight: 1.26,
+    stemHeight: 1.14,
   },
   {
     lat: 56.2639,
     lng: 9.5018,
     flag: '🇩🇰',
     label: 'Danimarca',
-    stemHeight: 1.38,
+    stemHeight: 1.16,
   },
   {
     lat: 45.1000,
     lng: 15.2000,
     flag: '🇭🇷',
     label: 'Croazia',
-    stemHeight: 1.20,
+    stemHeight: 1.08,
   },
   {
     lat: 43.9159,
     lng: 17.6791,
     flag: '🇧🇦',
     label: 'Bosnia',
-    stemHeight: 1.32,
+    stemHeight: 1.15,
   },
   {
     lat: 35.1264,
     lng: 33.4299,
     flag: '🇨🇾',
     label: 'Cipro',
-    stemHeight: 1.22,
+    stemHeight: 1.10,
   },
   {
     lat: 60.4720,
     lng: 8.4689,
     flag: '🇳🇴',
     label: 'Norvegia',
-    stemHeight: 1.26,
+    stemHeight: 1.12,
   },
   {
     lat: 61.9241,
     lng: 25.7482,
     flag: '🇫🇮',
     label: 'Finlandia',
-    stemHeight: 1.32,
+    stemHeight: 1.15,
   },
 ];
 
@@ -182,17 +182,17 @@ export const TravelGlobe: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Centered 3D Globe */}
-          <div className="lg:col-span-7 h-[440px] sm:h-[490px] md:h-[520px] w-full relative flex items-center justify-center">
+          {/* Right Column: Centered Large 3D Globe */}
+          <div className="lg:col-span-7 h-[480px] sm:h-[540px] md:h-[580px] w-full relative flex items-center justify-center">
             <Globe3D
               className="w-full h-full"
               markers={countryMarkers}
               activeMarkerLabel={activeCountry}
               config={{
-                radius: 68,
+                radius: 92,
                 atmosphereColor: '#38bdf8',
                 bumpScale: 3,
-                autoRotateSpeed: 0.3,
+                autoRotateSpeed: 0.25,
                 showAtmosphere: true,
               }}
               onMarkerHover={(m) => {

@@ -59,21 +59,21 @@ export function Globe3D({
   const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
 
   const {
-    radius = 68,
+    radius = 92,
     textureUrl = DEFAULT_EARTH_TEXTURE,
     bumpMapUrl = DEFAULT_BUMP_TEXTURE,
     showAtmosphere = true,
     atmosphereColor = "#38bdf8",
     bumpScale = 3,
-    autoRotateSpeed = 0.35,
+    autoRotateSpeed = 0.25,
   } = config;
 
   useEffect(() => {
     if (!containerRef.current || !canvasRef.current) return;
 
     const container = containerRef.current;
-    let width = container.clientWidth || 500;
-    let height = container.clientHeight || 500;
+    let width = container.clientWidth || 550;
+    let height = container.clientHeight || 550;
 
     // Scene & Camera
     const scene = new THREE.Scene();
@@ -91,11 +91,10 @@ export function Globe3D({
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // Globe Group
+    // Globe Group: Rotate Europe and Northern Europe directly to front-center
     const globeGroup = new THREE.Group();
-    // Tilt slightly so Europe and Northern Europe face the camera
-    globeGroup.rotation.x = 0.3;
-    globeGroup.rotation.y = -0.3;
+    globeGroup.rotation.x = 0.52;
+    globeGroup.rotation.y = -3.25;
     scene.add(globeGroup);
 
     // Globe Mesh
