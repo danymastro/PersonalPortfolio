@@ -584,14 +584,14 @@ const it: TranslationSchema = {
     titleLine2: 'che vanno online.',
     roleTag: 'Full-Stack Developer · Founder di VibesOut',
     stickers: {
-      location: '📍 Italia · Remoto',
+      location: '📍 Campobasso · Remoto',
       founder: '🚀 Founder VibesOut',
-      speed: '⚡ Consegna rapida',
+      speed: '🎓 UniMol Informatica',
     },
     paragraphs: [
-      'Sono Danilo. Faccio una cosa sola, ma la faccio dall’inizio alla fine: prendo un problema — un processo che si inceppa, un’idea ferma, un lavoro fatto a mano — e lo trasformo in software che funziona in produzione.',
-      'Lavoro su tutto lo stack: interfacce Next.js e React, API e backend Node.js, database relazionali e documentali, automazioni AI, deploy e infrastruttura su Cloudflare, migrazioni e configurazione dei server. Quando serve, anche le animazioni e le grafiche.',
-      'In parallelo sono founder di VibesOut, che ho costruito da solo dall’idea al rilascio su iOS e Android: è la prova che il metodo funziona anche quando il cliente più esigente sono io.',
+      'Nasco a Campobasso l’11 maggio 2005 e fin da bambino coltivo una forte passione per l’informatica e i computer. Mi sono affacciato al mondo della programmazione a 15 anni e da quel momento non ho più smesso di costruire.',
+      'Ho iniziato con lo sviluppo di interfacce web in React per poi evolvere verso un profilo Full-Stack completo, accelerato dall’uscita degli strumenti di intelligenza artificiale di cui mi sono subito appassionato. Ho visto sin dall’inizio nell’AI uno strumento potente per ottimizzare il tempo: spendere meno tempo sulla scrittura di codice ripetitivo e concentrarmi sul problema concreto che il prodotto deve risolvere.',
+      'Attualmente sono al secondo anno del corso di Laurea in Informatica presso l’Università degli Studi del Molise (UniMol, Polo di Pesche). In parallelo sono founder di VibesOut, piattaforma social per eventi che ho ideato, sviluppato e rilasciato su iOS e Android.',
     ],
     stats: {
       years: 'Anni di esperienza',
@@ -1045,14 +1045,14 @@ const en: TranslationSchema = {
     titleLine2: 'that actually ship.',
     roleTag: 'Full-Stack Developer · Founder of VibesOut',
     stickers: {
-      location: '📍 Italy · Remote',
+      location: '📍 Campobasso · Remote',
       founder: '🚀 VibesOut founder',
-      speed: '⚡ Fast delivery',
+      speed: '🎓 UniMol CompSci',
     },
     paragraphs: [
-      'I’m Danilo. I do one thing, but I do it end to end: I take a problem — a process that jams, an idea stuck in the drawer, work still done by hand — and turn it into software running in production.',
-      'I work across the whole stack: Next.js and React interfaces, Node.js APIs and backends, relational and document databases, AI automation, deploys and infrastructure on Cloudflare, migrations and server configuration. And when it’s needed, the animation and graphics too.',
-      'Alongside client work I’m the founder of VibesOut, which I built alone from idea to release on iOS and Android: proof that the method holds up even when the most demanding client is me.',
+      'Born in Campobasso on May 11, 2005, I’ve had a deep passion for computer science and technology since childhood. I got into programming at 15 and haven’t stopped building ever since.',
+      'I started out building web interfaces with React before expanding into full-stack engineering, a transition heavily accelerated by the rise of AI tools. I immediately saw AI as a powerful catalyst: spending less time on boilerplate code and more time focusing on solving the core business problem.',
+      'I am currently in my second year of Computer Science at the University of Molise (UniMol, Pesche Campus). In parallel, I am the founder of VibesOut, an event-based social platform I designed, built and shipped to iOS and Android.',
     ],
     stats: {
       years: 'Years of experience',

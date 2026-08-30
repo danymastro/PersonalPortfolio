@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Github, Linkedin, Instagram } from 'lucide-react';
 import { PORTFOLIO_DATA } from '../data/portfolioData';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -58,9 +58,43 @@ export const AboutSection: React.FC<AboutProps> = ({ onOpenContact }) => {
                   </span>
                 </div>
 
+                {/* Social Links */}
+                <div className="flex items-center gap-2 justify-center w-full">
+                  <a
+                    href="https://github.com/danymastro"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="GitHub"
+                    className="flex-1 py-2 px-2 rounded-xl border-2 border-black bg-white hover:bg-[#FDE047] hover:-translate-y-0.5 transition-all neo-shadow-sm flex items-center justify-center gap-1.5 text-[11px] font-mono font-bold text-black"
+                  >
+                    <Github className="w-3.5 h-3.5" />
+                    <span>GitHub</span>
+                  </a>
+                  <a
+                    href="https://linkedin.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="LinkedIn"
+                    className="flex-1 py-2 px-2 rounded-xl border-2 border-black bg-white hover:bg-[#38BDF8] hover:-translate-y-0.5 transition-all neo-shadow-sm flex items-center justify-center gap-1.5 text-[11px] font-mono font-bold text-black"
+                  >
+                    <Linkedin className="w-3.5 h-3.5" />
+                    <span>LinkedIn</span>
+                  </a>
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Instagram"
+                    className="flex-1 py-2 px-2 rounded-xl border-2 border-black bg-white hover:bg-[#F9A8D4] hover:-translate-y-0.5 transition-all neo-shadow-sm flex items-center justify-center gap-1.5 text-[11px] font-mono font-bold text-black"
+                  >
+                    <Instagram className="w-3.5 h-3.5" />
+                    <span>IG</span>
+                  </a>
+                </div>
+
                 <button
                   onClick={onOpenContact}
-                  className="w-full py-3.5 bg-[#2563EB] text-white font-bold text-sm rounded-xl border-2 border-black neo-shadow-sm hover:bg-[#FDE047] hover:text-black transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-[#2563EB] text-white font-bold text-sm rounded-xl border-2 border-black neo-shadow-sm hover:bg-[#FDE047] hover:text-black transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>{t.about.getInTouch}</span>
                   <ArrowUpRight className="w-4 h-4" />
