@@ -30,7 +30,7 @@ export const ContactFooter: React.FC<FooterProps> = ({ onOpenContact }) => {
         {/* Massive Interactive Header */}
         <h2
           onClick={onOpenContact}
-          className="text-[12vw] sm:text-[11vw] md:text-[10vw] lg:text-[9.5vw] xl:text-[9vw] leading-[0.9] font-extrabold tracking-tighter font-syne mb-8 hover:text-[#FDE047] transition-colors duration-300 cursor-pointer select-none whitespace-nowrap"
+          className="text-[8.5vw] xs:text-[9vw] sm:text-[11vw] md:text-[10vw] lg:text-[9.5vw] xl:text-[9vw] leading-[0.9] font-extrabold tracking-tighter font-syne mb-8 hover:text-[#FDE047] transition-colors duration-300 cursor-pointer select-none whitespace-nowrap"
         >
           {t.footer.letsTalk}
         </h2>
