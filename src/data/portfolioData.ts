@@ -77,10 +77,10 @@ export const PORTFOLIO_DATA = {
 
   /** What I actually build, as services */
   solutions: [
-    { id: 'call-center', icon: 'Headphones', accent: '#2563EB' },
-    { id: 'ai-automation', icon: 'Bot', accent: '#C084FC' },
     { id: 'platforms', icon: 'LayoutDashboard', accent: '#FDE047' },
     { id: 'products', icon: 'Rocket', accent: '#F9A8D4' },
+    { id: 'ai-automation', icon: 'Bot', accent: '#C084FC' },
+    { id: 'call-center', icon: 'Headphones', accent: '#2563EB' },
     { id: 'infra', icon: 'Cloud', accent: '#4ADE80' },
     { id: 'motion', icon: 'Sparkles', accent: '#FB923C' },
   ] as SolutionMeta[],

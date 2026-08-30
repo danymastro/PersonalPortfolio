@@ -1,5 +1,6 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import React, { useRef, useEffect, useState } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   Headphones,
   Bot,
@@ -10,6 +11,8 @@ import {
 } from 'lucide-react';
 import { PORTFOLIO_DATA } from '../data/portfolioData';
 import { useLanguage } from '../i18n/LanguageContext';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface SolutionsProps {
   onOpenContact: () => void;
@@ -30,49 +33,80 @@ export const Solutions: React.FC<SolutionsProps> = () => {
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const [scrollDistance, setScrollDistance] = useState(0);
+  const [ready, setReady] = useState(false);
 
-  // Compute exact horizontal travel distance based on total track width vs viewport
+  // Wait a tick for layout to settle before measuring
   useEffect(() => {
-    const updateDistance = () => {
-      if (trackRef.current) {
-        const trackWidth = trackRef.current.scrollWidth;
-        const containerWidth = trackRef.current.parentElement?.clientWidth || window.innerWidth;
-        const dist = Math.max(0, trackWidth - containerWidth + 60);
-        setScrollDistance(dist);
-      }
+    const timer = setTimeout(() => setReady(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!ready || !sectionRef.current || !trackRef.current) return;
+
+    const section = sectionRef.current;
+    const track = trackRef.current;
+
+    // How far the track needs to travel horizontally
+    const trackWidth = track.scrollWidth;
+    const containerWidth = track.parentElement?.clientWidth || window.innerWidth;
+    const scrollDistance = Math.max(0, trackWidth - containerWidth);
+
+    if (scrollDistance <= 0) return;
+
+    // Create the GSAP timeline: translate the track left by scrollDistance
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        // Pin the entire section in place while the horizontal scroll happens
+        pin: true,
+        // scrub: true links the animation 1:1 to scroll position (fully reversible)
+        scrub: 1,
+        // Start when section top hits viewport top
+        start: 'top top',
+        // End after scrolling exactly scrollDistance extra pixels
+        end: () => `+=${scrollDistance}`,
+        // Prevent address-bar-resize jank
+        invalidateOnRefresh: true,
+        // Don't add extra spacing that could push other elements
+        pinSpacing: true,
+        // Anticipate layout shifts on refresh
+        anticipatePin: 1,
+      },
+    });
+
+    tl.to(track, {
+      x: -scrollDistance,
+      ease: 'none',
+    });
+
+    // Re-calculate on resize
+    const onResize = () => ScrollTrigger.refresh();
+    window.addEventListener('resize', onResize);
+
+    return () => {
+      tl.kill();
+      ScrollTrigger.getAll().forEach((st) => {
+        if (st.trigger === section) st.kill();
+      });
+      window.removeEventListener('resize', onResize);
     };
-
-    updateDistance();
-    window.addEventListener('resize', updateDistance);
-    return () => window.removeEventListener('resize', updateDistance);
-  }, [solutions]);
-
-  // Track vertical scroll progress strictly while the section is pinned
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end end'],
-  });
-
-  // Linear, smooth translation from 0 to exact negative scroll distance
-  const x = useTransform(scrollYProgress, [0, 1], [0, -scrollDistance]);
+  }, [ready, solutions, t]);
 
   return (
     <section
       ref={sectionRef}
       id="solutions"
       className="relative bg-[#FFFDF5] border-b-4 border-black"
-      style={{ height: `${scrollDistance + window.innerHeight * 1.2}px` }}
     >
-      {/* Pinned Sticky Viewport: perfectly locked in place during horizontal scroll */}
-      <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden select-none z-10">
-        {/* Ambient background blur blobs */}
-        <div className="absolute -right-20 top-1/4 w-96 h-96 bg-[#C084FC] rounded-full mix-blend-multiply filter blur-3xl opacity-20 pointer-events-none" />
-        <div className="absolute -left-20 bottom-1/4 w-96 h-96 bg-[#FDE047] rounded-full mix-blend-multiply filter blur-3xl opacity-25 pointer-events-none" />
+      {/* Ambient background blur blobs */}
+      <div className="absolute -right-20 top-1/4 w-96 h-96 bg-[#C084FC] rounded-full mix-blend-multiply filter blur-3xl opacity-20 pointer-events-none" />
+      <div className="absolute -left-20 bottom-1/4 w-96 h-96 bg-[#FDE047] rounded-full mix-blend-multiply filter blur-3xl opacity-25 pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto w-full px-4 sm:px-8 relative z-10 flex flex-col justify-center h-full max-h-screen py-6">
+      <div className="min-h-screen w-full flex flex-col justify-center overflow-hidden select-none relative z-10">
+        <div className="max-w-7xl mx-auto w-full px-4 sm:px-8">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10 shrink-0">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10">
             <div className="max-w-2xl">
               <span className="inline-block px-3 py-1 rounded-full bg-[#F9A8D4] border-2 border-black text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-3 neo-shadow-sm text-black">
                 {t.solutions.eyebrow}
@@ -81,7 +115,9 @@ export const Solutions: React.FC<SolutionsProps> = () => {
               <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold font-syne tracking-tighter text-slate-900 leading-[0.95]">
                 {t.solutions.titleMain}
                 <br />
-                <span className="text-[#2563EB]">{t.solutions.titleHighlight}</span>
+                <span className="text-[#2563EB]">
+                  {t.solutions.titleHighlight}
+                </span>
               </h2>
             </div>
 
@@ -92,9 +128,8 @@ export const Solutions: React.FC<SolutionsProps> = () => {
 
           {/* Cards Track Container */}
           <div className="overflow-hidden w-full py-2">
-            <motion.div
+            <div
               ref={trackRef}
-              style={{ x }}
               className="flex gap-6 sm:gap-8 will-change-transform items-stretch"
             >
               {solutions.map((meta, idx) => {
@@ -117,7 +152,9 @@ export const Solutions: React.FC<SolutionsProps> = () => {
                         className="p-3 rounded-2xl border-2 border-black text-black transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
                         style={{ backgroundColor: meta.accent }}
                       >
-                        {ICONS[meta.icon] ?? <Sparkles className="w-7 h-7" />}
+                        {ICONS[meta.icon] ?? (
+                          <Sparkles className="w-7 h-7" />
+                        )}
                       </div>
 
                       <span className="text-[11px] font-mono font-bold text-black/40 tracking-widest">
@@ -150,7 +187,7 @@ export const Solutions: React.FC<SolutionsProps> = () => {
                   </article>
                 );
               })}
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
