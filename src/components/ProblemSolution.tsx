@@ -190,15 +190,15 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({ onOpenContact 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center"
+            className="max-w-4xl mx-auto w-full flex flex-col items-center gap-8"
           >
-            {/* Terminal on Left */}
-            <div className="lg:col-span-6 w-full">
+            {/* Terminal on top */}
+            <div className="w-full">
               <AIAssistantTerminal onOpenContact={onOpenContact} />
             </div>
 
-            {/* Official Aceternity Keyboard on Right */}
-            <div className="lg:col-span-6 w-full flex flex-col items-center justify-center overflow-x-auto py-2">
+            {/* Official Aceternity Keyboard right below terminal (desktop only, hidden on mobile & iPad/tablets) */}
+            <div className="hidden lg:flex flex-col items-center justify-center w-full overflow-visible py-2">
               <Keyboard enableSound={true} showPreview={true} />
             </div>
           </motion.div>
