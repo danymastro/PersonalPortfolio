@@ -203,23 +203,6 @@ export function Globe3D({
       });
     });
 
-    // Pulsing Rings at destination surfaces
-    const ringsData = markers.map((m) => ({
-      lat: m.lat,
-      lng: m.lng,
-      color: '#38bdf8',
-      maxR: 4.5,
-      propagationSpeed: 2.5,
-      repeatPeriod: 900,
-    }));
-
-    globe
-      .ringsData(ringsData)
-      .ringColor('color')
-      .ringMaxRadius('maxR')
-      .ringPropagationSpeed('propagationSpeed')
-      .ringRepeatPeriod('repeatPeriod');
-
     // Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
     scene.add(ambientLight);
@@ -312,9 +295,12 @@ export function Globe3D({
         const worldPos = new THREE.Vector3();
         topMesh.getWorldPosition(worldPos);
 
-        const cameraDir = camera.position.clone().normalize();
-        const markerDir = worldPos.clone().normalize();
-        const isVisible = markerDir.dot(cameraDir) > 0.05;
+        const globeCenter = new THREE.Vector3();
+        globeGroup.getWorldPosition(globeCenter);
+
+        const markerNormal = worldPos.clone().sub(globeCenter).normalize();
+        const cameraToMarker = camera.position.clone().sub(worldPos).normalize();
+        const isVisible = markerNormal.dot(cameraToMarker) > 0.05;
 
         if (!isVisible) {
           el.style.opacity = "0";
