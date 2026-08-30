@@ -30,15 +30,15 @@ export const AIAssistantTerminal: React.FC<AIAssistantTerminalProps> = ({ onOpen
   const quickPrompts = isIt
     ? [
         'Devo lanciare un MVP in 2 settimane',
+        'Voglio lanciare un brand (logo, video e sito)',
         'Ho un design Figma pronto da sviluppare',
         'Serve un’app iOS / Android completa',
-        'Quali sono le tempistiche e i costi?',
       ]
     : [
         'I need an MVP shipped in 2 weeks',
+        'I want to launch a full brand (logo, video & web)',
         'I have a Figma design ready to build',
         'I need a complete iOS / Android app',
-        'What are the timelines and pricing?',
       ];
 
   useEffect(() => {
@@ -50,13 +50,19 @@ export const AIAssistantTerminal: React.FC<AIAssistantTerminalProps> = ({ onOpen
   const generateAnswer = (query: string): string => {
     const q = query.toLowerCase();
 
+    if (q.includes('brand') || q.includes('logo') || q.includes('video') || q.includes('foto') || q.includes('shooting') || q.includes('grafica') || q.includes('pacchetto')) {
+      return isIt
+        ? '🎬 Gestisco l’intero pacchetto di lancio come referente unico: coordino direttamente studi partner di fotografia, videomaking e branding (logo vettoriale e grafiche) e sviluppo la piattaforma web. Risultato: brand coerente, tempi dimezzati e zero mal di testa per coordinare agenzie separate.'
+        : '🎬 I handle full turnkey brand launches as your single point of contact: I coordinate partner studios for photography, promo videos, and branding (vector logos & graphic identity) while building the web platform end-to-end. One unified project, zero agency friction.';
+    }
+
     if (q.includes('mvp') || q.includes('2 settimane') || q.includes('settimane') || q.includes('veloce') || q.includes('lanciare') || q.includes('2 weeks') || q.includes('launch')) {
       return isIt
         ? '⚡ Per un MVP funzionante il mio standard è 7-14 giorni: architettura pulita, sviluppo full-stack, design reattivo e deploy in produzione pronto per i primi utenti reali.'
         : '⚡ For a functioning MVP, my turnaround is 7-14 days: clean architecture, full-stack development, responsive UI, and production deploy ready for real users.';
     }
 
-    if (q.includes('figma') || q.includes('design') || q.includes('grafica') || q.includes('ui') || q.includes('mockup')) {
+    if (q.includes('figma') || q.includes('design') || q.includes('ui') || q.includes('mockup')) {
       return isIt
         ? '🎨 Traduco qualsiasi file Figma in codice web e mobile pixel-perfect, con animazioni fluide, performance al millisecondo e zero distorsioni grafiche.'
         : '🎨 I convert Figma designs into pixel-perfect web and mobile apps, with fluid micro-interactions and top-tier performance.';

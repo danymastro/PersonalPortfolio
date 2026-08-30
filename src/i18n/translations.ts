@@ -398,11 +398,11 @@ const it: TranslationSchema = {
         bullets: ['Cloudflare Pages & Workers', 'Migrazioni e DNS', 'CI/CD e staging', 'Backup e monitoraggio'],
       },
       motion: {
-        title: 'Motion & grafica',
-        category: 'Interfacce vive',
+        title: 'Brand, Video & Lancio Web',
+        category: 'Pacchetto All-In-One',
         description:
-          'Animazioni generate da codice, motion graphics e asset grafici: interfacce che si muovono bene senza pesare sulle performance.',
-        bullets: ['Animazioni web fluide', 'Motion graphics via codice', 'SVG e Lottie', 'Grafiche e brand asset'],
+          'Coordino direttamente studi partner di fotografia, videomaking e grafica per offrirti un lancio completo: logo, video promozionale e piattaforma web con un unico referente, senza impazzire a gestire agenzie separate.',
+        bullets: ['Logo e identità visiva', 'Video promo e shooting foto', 'Sviluppo piattaforma web', 'Unico referente di progetto'],
       },
     },
     footnote: 'Il tuo caso non rientra in nessuna di queste caselle?',
@@ -617,6 +617,7 @@ const it: TranslationSchema = {
     title: 'Raccontami il problema',
     topicQuestion: 'Di cosa hai bisogno?',
     topics: [
+      'Lancio Brand Completo (Web + Video + Logo)',
       'Call center digitale',
       'Automazione AI',
       'Gestionale / piattaforma',
@@ -862,11 +863,11 @@ const en: TranslationSchema = {
         bullets: ['Cloudflare Pages & Workers', 'Migrations and DNS', 'CI/CD and staging', 'Backups and monitoring'],
       },
       motion: {
-        title: 'Motion & graphics',
-        category: 'Interfaces that move',
+        title: 'Brand, Video & Web Launch',
+        category: 'All-In-One Package',
         description:
-          'Code-generated animation, motion graphics and visual assets: interfaces that move beautifully without hurting performance.',
-        bullets: ['Fluid web animation', 'Motion graphics from code', 'SVG and Lottie', 'Graphics and brand assets'],
+          'I directly coordinate partner studios for photography, video production, and branding to deliver turnkey launches: logo, promo video, and custom web platform with a single point of contact.',
+        bullets: ['Logo & visual brand identity', 'Promo video & photography shoot', 'Custom web platform build', 'Single project manager'],
       },
     },
     footnote: 'Your case doesn’t fit any of these boxes?',
@@ -1078,6 +1079,7 @@ const en: TranslationSchema = {
     title: 'Tell me the problem',
     topicQuestion: 'What do you need?',
     topics: [
+      'Full Brand Launch (Web + Video + Logo)',
       'Digital call centre',
       'AI automation',
       'Internal tool / platform',
