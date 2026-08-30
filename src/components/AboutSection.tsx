@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowUpRight, Github, Linkedin, Instagram } from 'lucide-react';
 import { PORTFOLIO_DATA } from '../data/portfolioData';
 import { useLanguage } from '../i18n/LanguageContext';
+import { TravelGlobe } from './TravelGlobe';
 
 interface AboutProps {
   onOpenContact: () => void;
@@ -148,6 +149,11 @@ export const AboutSection: React.FC<AboutProps> = ({ onOpenContact }) => {
               })}
             </div>
           </div>
+        </div>
+
+        {/* Travel & Exploration 3D Globe */}
+        <div className="pt-16 sm:pt-20">
+          <TravelGlobe />
         </div>
       </div>
     </section>
