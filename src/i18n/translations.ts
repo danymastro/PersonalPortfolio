@@ -461,17 +461,17 @@ const it: TranslationSchema = {
   },
 
   venture: {
-    eyebrow: 'Il mio prodotto',
-    titleLead: 'Non costruisco solo per i clienti.',
-    titleAccent: 'Anche per me.',
+    eyebrow: 'Startup & Prodotto Proprietario',
+    titleLead: 'Dall’idea al mercato:',
+    titleAccent: 'costruisco e scalo prodotti da zero.',
     role: 'Founder & Full-Stack Engineer',
     paragraphs: [
       'Ho fondato e sviluppato VibesOut da zero: il social layer degli eventi reali che connette le persone prima di arrivare e trasforma ogni serata in un’esperienza vissuta. Dall’app mobile all’infrastruttura, curato al 100%.',
     ],
     bullets: [
-      'App pubblicata su iOS e Android',
-      'Sviluppo completo dall’idea alla produzione',
-      'Rilasci continui guidati dagli utenti reali',
+      'App pubblicata e attiva su iOS e Android',
+      'Architettura full-stack: mobile, backend real-time e cloud',
+      'Sviluppo guidato da metriche e utenti reali',
     ],
     liveLabel: 'Visita vibesout.com ↗',
     visitCta: 'Scopri vibesout.com',
@@ -925,17 +925,17 @@ const en: TranslationSchema = {
   },
 
   venture: {
-    eyebrow: 'My own product',
-    titleLead: 'I don’t only build for clients.',
-    titleAccent: 'I build for myself too.',
+    eyebrow: 'Founder & Venture',
+    titleLead: 'From concept to market:',
+    titleAccent: 'I build and scale real products from scratch.',
     role: 'Founder & Full-Stack Engineer',
     paragraphs: [
       'I founded and built VibesOut from scratch: the social layer for real events that connects people before they arrive and turns a night out into a shared experience. From mobile app to infrastructure, built 100% in-house.',
     ],
     bullets: [
-      'Live product on iOS and Android',
-      'End-to-end execution from idea to launch',
-      'Continuous releases driven by real users',
+      'Published and active app on iOS and Android',
+      'Full-stack architecture: mobile, real-time backend & cloud',
+      'Iterative growth driven by real user metrics',
     ],
     liveLabel: 'Visit vibesout.com ↗',
     visitCta: 'Explore vibesout.com',
