@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Check, Clock, Quote, Terminal, Sparkles, ListFilter } from 'lucide-react';
+import { ArrowRight, Check, Clock, Quote, Terminal, ListFilter } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { ProblemCopy } from '../i18n/translations';
 import { AIAssistantTerminal } from './AIAssistantTerminal';
+import { AceternityKeyboard } from './ui/AceternityKeyboard';
 
 interface ProblemSolutionProps {
   onOpenContact: () => void;
@@ -166,7 +167,7 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({ onOpenContact 
               }`}
             >
               <Terminal className="w-3.5 h-3.5" />
-              <span>{isIt ? 'Assistente AI' : 'AI Terminal'}</span>
+              <span>{isIt ? 'Assistente AI & Keyboard' : 'AI Terminal & Keyboard'}</span>
             </button>
 
             <button
@@ -189,9 +190,17 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({ onOpenContact 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="max-w-4xl mx-auto"
+            className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center"
           >
-            <AIAssistantTerminal onOpenContact={onOpenContact} />
+            {/* Terminal on Left */}
+            <div className="lg:col-span-7 w-full">
+              <AIAssistantTerminal onOpenContact={onOpenContact} />
+            </div>
+
+            {/* Keyboard on Right */}
+            <div className="lg:col-span-5 w-full flex flex-col justify-center">
+              <AceternityKeyboard enableSound={true} />
+            </div>
           </motion.div>
         ) : (
           /* Two-column: problem list + solution panel */
