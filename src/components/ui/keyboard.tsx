@@ -386,6 +386,16 @@ const KeyboardProvider = ({
     if (!isVisible) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      const isInput =
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        (e.target as HTMLElement)?.isContentEditable;
+
+      // Prevent browser default window scrolling on Space when keyboard is active
+      if (e.code === "Space" && !isInput) {
+        e.preventDefault();
+      }
+
       // Prevent repeat events
       if (e.repeat) return;
 
