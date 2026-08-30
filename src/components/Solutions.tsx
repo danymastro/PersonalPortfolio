@@ -144,24 +144,22 @@ export const Solutions: React.FC<SolutionsProps> = () => {
                   return (
                     <article
                       key={meta.id}
-                      className="group relative w-[82vw] xs:w-[320px] sm:w-[370px] md:w-[410px] shrink-0 p-6 sm:p-8 bg-[#0F1117] text-white border-2 border-black rounded-3xl neo-shadow flex flex-col justify-between gap-6 overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_35px_rgba(208,255,113,0.45)]"
+                      className="relative w-[82vw] xs:w-[320px] sm:w-[370px] md:w-[410px] shrink-0 p-6 sm:p-8 bg-[#0F1117] text-white border-2 border-black rounded-3xl neo-shadow flex flex-col justify-between gap-6 overflow-hidden"
                     >
-                      {/* Animated Rainbow / Lime Glow Aura */}
-                      <div className="absolute -inset-1 rounded-[2rem] bg-gradient-to-r from-[#D0FF71] via-[#FDE047] to-[#38BDF8] opacity-60 blur-md group-hover:opacity-100 group-hover:blur-lg transition-all -z-10 animate-pulse pointer-events-none" />
+                      {/* Subtle Ambient Glow Aura */}
+                      <div className="absolute -inset-1 rounded-[2rem] bg-gradient-to-r from-[#D0FF71]/40 via-[#FDE047]/30 to-[#38BDF8]/40 blur-md -z-10 pointer-events-none" />
 
                       {/* Top All-in-One VIP ribbon badge */}
-                      <div className="absolute top-0 left-0 right-0 py-1.5 px-4 bg-gradient-to-r from-[#D0FF71] via-[#FDE047] to-[#4ADE80] text-black border-b-2 border-black flex items-center justify-center gap-2 text-[10px] font-mono font-extrabold uppercase tracking-widest neo-shadow-sm">
-                        <Sparkles className="w-3.5 h-3.5 fill-black animate-spin" style={{ animationDuration: '6s' }} />
+                      <div className="absolute top-0 left-0 right-0 py-1.5 px-4 bg-[#D0FF71] text-black border-b-2 border-black flex items-center justify-center gap-2 text-[10px] font-mono font-extrabold uppercase tracking-widest">
+                        <Sparkles className="w-3.5 h-3.5 fill-black text-black" />
                         <span>★ PACCHETTO COMPLETO ALL-IN-ONE ★</span>
                       </div>
 
                       {/* Ambient corner light flare */}
-                      <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#D0FF71] rounded-full blur-2xl opacity-20 pointer-events-none group-hover:opacity-40 transition-opacity" />
+                      <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#D0FF71] rounded-full blur-2xl opacity-15 pointer-events-none" />
 
                       <div className="relative z-10 flex items-start justify-between pt-4">
-                        <div
-                          className="p-3 rounded-2xl border-2 border-black text-black bg-[#D0FF71] transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6 neo-shadow-sm"
-                        >
+                        <div className="p-3 rounded-2xl border-2 border-black text-black bg-[#D0FF71] neo-shadow-sm">
                           <Sparkles className="w-7 h-7 stroke-[2.2]" />
                         </div>
 
@@ -174,7 +172,7 @@ export const Solutions: React.FC<SolutionsProps> = () => {
                         <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#D0FF71] block">
                           {copy.category}
                         </span>
-                        <h3 className="text-2xl sm:text-[1.75rem] font-extrabold font-syne tracking-tight leading-tight text-white group-hover:text-[#D0FF71] transition-colors">
+                        <h3 className="text-2xl sm:text-[1.75rem] font-extrabold font-syne tracking-tight leading-tight text-white">
                           {copy.title}
                         </h3>
                         <p className="text-sm sm:text-[15px] text-slate-300 leading-relaxed font-medium">
@@ -186,7 +184,7 @@ export const Solutions: React.FC<SolutionsProps> = () => {
                         {copy.bullets.map((b) => (
                           <li
                             key={b}
-                            className="px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-[11px] font-mono font-bold tracking-tight text-white/90 group-hover:border-[#D0FF71]/60 group-hover:text-[#D0FF71] transition-colors"
+                            className="px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-[11px] font-mono font-bold tracking-tight text-white/90"
                           >
                             {b}
                           </li>
