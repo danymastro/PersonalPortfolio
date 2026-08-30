@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Font Assignments */
+body {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #FFFDF5;
+  color: #0f172a;
+}
+
+h1, h2, h3, h4, .display-font {
+  font-family: 'Syne', sans-serif;
+}
+
+/* Custom Cursor */
+@media (pointer: fine) {
+  body {
+    cursor: none;
+  }
+  a, button, input, textarea, [role="button"], .project-card {
+    cursor: none !important;
+  }
+}
+
+.cursor-dot {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  z-index: 9999;
+  width: 8px;
+  height: 8px;
+  background-color: #000000;
+}
+
+.cursor-circle {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  z-index: 9998;
+  width: 38px;
+  height: 38px;
+  border: 1.5px solid rgba(0, 0, 0, 0.6);
+  transition: width 0.25s ease, height 0.25s ease, background-color 0.25s ease, transform 0.08s ease-out;
+}
+
+/* Hover state for custom cursor */
+.cursor-hover {
+  width: 64px !important;
+  height: 64px !important;
+  background-color: rgba(253, 224, 71, 0.45) !important;
+  border-color: transparent !important;
+}
+
+/* Blob Animation */
+@keyframes move-blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: move-blob 10s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Marquee Animation */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee-smooth {
+  animation: marquee 24s linear infinite;
+}
+
+/* Utilities */
+.text-outline {
+  -webkit-text-stroke: 1.5px black;
+  color: transparent;
+}
+
+.text-outline-thick {
+  -webkit-text-stroke: 2.5px black;
+  color: transparent;
+}
+
+.neo-shadow {
+  box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.neo-shadow-sm {
+  box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.neo-shadow-lg {
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.neo-shadow-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neo-shadow-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+}
+
+/* Selection */
+::selection {
+  background-color: #F9A8D4;
+  color: #000000;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FFFDF5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #000000;
+  border-radius: 4px;
+}
+
+/* Dotted grids used behind the hero and the problem section */
+.dot-grid {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.16) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+.dot-grid-light {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+/* Respect users who ask for less motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob,
+  .animate-marquee-smooth,
+  .animate-bounce,
+  .animate-ping {
+    animation: none !important;
+  }
+  * {
+    scroll-behavior: auto !important;
+  }
+}

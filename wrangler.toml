@@ -1,0 +1,6 @@
+name = "danilomastropaolo-portfolio"
+compatibility_date = "2024-09-01"
+pages_build_output_dir = "dist"
+
+[vars]
+CONTACT_RECEIVER_EMAIL = "danilomastropaolo.dev@gmail.com"
