@@ -6,8 +6,8 @@ export interface GlobeMarker {
   lat: number;
   lng: number;
   src?: string;
+  flag?: string;
   label?: string;
-  size?: number;
   stemHeight?: number;
 }
 
@@ -55,10 +55,8 @@ export function Globe3D({
 }: Globe3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [hoveredMarker, setHoveredMarker] = useState<GlobeMarker | null>(null);
-  const [markerPositions, setMarkerPositions] = useState<
-    { marker: GlobeMarker; screenX: number; screenY: number; visible: boolean }[]
-  >([]);
+  const tagRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
 
   const {
     radius = 68,
@@ -95,17 +93,17 @@ export function Globe3D({
 
     // Globe Group
     const globeGroup = new THREE.Group();
-    // Tilt slightly so Europe/Italy and Northern Europe face the user
+    // Tilt slightly so Europe and Northern Europe face the camera
     globeGroup.rotation.x = 0.3;
     globeGroup.rotation.y = -0.3;
     scene.add(globeGroup);
 
-    // Globe Mesh with richer, slightly darker contrast
+    // Globe Mesh
     const sphereGeometry = new THREE.SphereGeometry(radius, 64, 64);
     const textureLoader = new THREE.TextureLoader();
 
     const globeMaterial = new THREE.MeshStandardMaterial({
-      color: 0xcccccc, // Slightly deeper tone as requested
+      color: 0xcccccc,
       roughness: 0.65,
       metalness: 0.12,
     });
@@ -144,7 +142,7 @@ export function Globe3D({
     const globe = new THREE.Mesh(sphereGeometry, globeMaterial);
     globeGroup.add(globe);
 
-    // Atmosphere Glow (Soft, subtle halo)
+    // Atmosphere Glow Mesh
     if (showAtmosphere) {
       const atmosphereGeometry = new THREE.SphereGeometry(radius * 1.05, 64, 64);
       const atmosphereMaterial = new THREE.ShaderMaterial({
@@ -179,7 +177,7 @@ export function Globe3D({
       scene.add(atmosphere);
     }
 
-    // Balanced Lighting (Clean depth, slightly moody contrast)
+    // Balanced Daylight Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.35);
     scene.add(ambientLight);
 
@@ -191,14 +189,14 @@ export function Globe3D({
     fillLight.position.set(-200, -100, -200);
     scene.add(fillLight);
 
-    // Marker Meshes with staggered stem heights to avoid European overlaps
+    // Marker Meshes
     const markerMeshes: {
       topMesh: THREE.Object3D;
       marker: GlobeMarker;
     }[] = [];
 
     markers.forEach((m) => {
-      const heightMult = m.stemHeight || 1.22;
+      const heightMult = m.stemHeight || 1.24;
       const surfacePos = latLngToVector3(m.lat, m.lng, radius * 1.001);
       const topPos = latLngToVector3(m.lat, m.lng, radius * heightMult);
       const lineHeight = topPos.distanceTo(surfacePos);
@@ -271,7 +269,7 @@ export function Globe3D({
       isDragging = false;
     };
 
-    // Zoom on wheel (allows user to inspect dense regions)
+    // Zoom on wheel
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       camera.position.z += e.deltaY * 0.15;
@@ -298,21 +296,20 @@ export function Globe3D({
     };
     window.addEventListener("resize", onResize);
 
-    // Animation Loop
+    // Animation Loop with Real-Time Matrix World Sync
     const animate = () => {
       if (!isDragging && autoRotateSpeed > 0) {
         globeGroup.rotation.y += autoRotateSpeed * 0.004;
       }
 
-      // Project 3D marker positions to 2D screen
-      const positions: {
-        marker: GlobeMarker;
-        screenX: number;
-        screenY: number;
-        visible: boolean;
-      }[] = [];
+      // CRITICAL: Update world matrix so anchors follow rotation exactly
+      globeGroup.updateMatrixWorld(true);
 
-      markerMeshes.forEach(({ topMesh, marker }) => {
+      // Direct DOM transform sync for instant 60fps tracking without state lag
+      markerMeshes.forEach(({ topMesh }, idx) => {
+        const el = tagRefs.current[idx];
+        if (!el) return;
+
         const worldPos = new THREE.Vector3();
         topMesh.getWorldPosition(worldPos);
 
@@ -320,19 +317,21 @@ export function Globe3D({
         const markerDir = worldPos.clone().normalize();
         const isVisible = markerDir.dot(cameraDir) > 0.05;
 
+        if (!isVisible) {
+          el.style.opacity = "0";
+          el.style.pointerEvents = "none";
+          return;
+        }
+
         const screenPos = worldPos.clone().project(camera);
         const screenX = ((screenPos.x + 1) * width) / 2;
         const screenY = ((-screenPos.y + 1) * height) / 2;
 
-        positions.push({
-          marker,
-          screenX,
-          screenY,
-          visible: isVisible,
-        });
+        el.style.opacity = "1";
+        el.style.pointerEvents = "auto";
+        el.style.transform = `translate3d(${screenX}px, ${screenY}px, 0) translate(-50%, -50%)`;
       });
 
-      setMarkerPositions(positions);
       renderer.render(scene, camera);
       reqId = requestAnimationFrame(animate);
     };
@@ -363,39 +362,40 @@ export function Globe3D({
     >
       <canvas ref={canvasRef} className="w-full h-full block" />
 
-      {/* Floating 2D Marker Overlays with Avatar and Tooltip */}
-      {markerPositions.map(({ marker, screenX, screenY, visible }, idx) => {
-        if (!visible) return null;
-
-        const isHovered = hoveredMarker?.label === marker.label;
+      {/* Floating 2D Marker Overlays synchronized in real-time */}
+      {markers.map((marker, idx) => {
+        const isHovered = hoveredLabel === marker.label;
         const isActive = activeMarkerLabel === marker.label;
         const isPromoted = isHovered || isActive;
 
         return (
           <div
-            key={idx}
-            className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-150 pointer-events-auto ${
-              isPromoted ? "z-40 scale-110" : "z-20"
+            key={marker.label || idx}
+            ref={(el) => (tagRefs.current[idx] = el)}
+            className={`absolute top-0 left-0 transition-opacity duration-150 ${
+              isPromoted ? "z-40" : "z-20"
             }`}
-            style={{ left: `${screenX}px`, top: `${screenY}px` }}
+            style={{ opacity: 0, pointerEvents: "none", willChange: "transform, opacity" }}
             onMouseEnter={() => {
-              setHoveredMarker(marker);
+              setHoveredLabel(marker.label || null);
               onMarkerHover?.(marker);
             }}
             onMouseLeave={() => {
-              setHoveredMarker(null);
+              setHoveredLabel(null);
               onMarkerHover?.(null);
             }}
             onClick={() => onMarkerClick?.(marker)}
           >
             <div
-              className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border-2 border-black text-[11px] font-mono font-bold transition-all cursor-pointer neo-shadow-sm ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border-2 border-black text-xs font-mono font-bold transition-all cursor-pointer neo-shadow-sm ${
                 isPromoted
-                  ? "bg-[#D0FF71] text-black shadow-[0_0_15px_rgba(208,255,113,0.9)] scale-110"
-                  : "bg-white/95 text-slate-900 hover:bg-[#FDE047]"
+                  ? "bg-[#D0FF71] text-black scale-110 shadow-[0_0_15px_rgba(208,255,113,0.9)]"
+                  : "bg-white text-slate-900 hover:bg-[#FDE047] hover:scale-105"
               }`}
             >
-              {marker.src ? (
+              {marker.flag ? (
+                <span className="text-sm">{marker.flag}</span>
+              ) : marker.src ? (
                 <img
                   src={marker.src}
                   alt={marker.label || "Marker"}
@@ -405,7 +405,7 @@ export function Globe3D({
                 <span className="w-2 h-2 rounded-full bg-[#2563EB] shrink-0" />
               )}
               {marker.label && (
-                <span className="whitespace-nowrap font-bold">
+                <span className="whitespace-nowrap font-bold text-[11px]">
                   {marker.label}
                 </span>
               )}
