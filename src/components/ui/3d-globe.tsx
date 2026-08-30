@@ -37,15 +37,21 @@ interface Globe3DProps {
   onMarkerHover?: (marker: GlobeMarker | null) => void;
 }
 
-function latLngToVector3(lat: number, lng: number, radius: number): THREE.Vector3 {
+// Exact ThreeGlobe spherical coordinate calculation
+function getGlobePosition(globe: ThreeGlobe, lat: number, lng: number, altitude = 0.08): THREE.Vector3 {
+  if (typeof globe.getCoords === 'function') {
+    const c = globe.getCoords(lat, lng, altitude);
+    return new THREE.Vector3(c.x, c.y, c.z);
+  }
+  // Standard ThreeGlobe coordinate projection
   const phi = (90 - lat) * (Math.PI / 180);
-  const theta = (lng + 180) * (Math.PI / 180);
-
-  const x = -(radius * Math.sin(phi) * Math.cos(theta));
-  const z = radius * Math.sin(phi) * Math.sin(theta);
-  const y = radius * Math.cos(phi);
-
-  return new THREE.Vector3(x, y, z);
+  const theta = (90 - lng) * (Math.PI / 180);
+  const r = 100 * (1 + altitude);
+  return new THREE.Vector3(
+    r * Math.sin(phi) * Math.cos(theta),
+    r * Math.cos(phi),
+    r * Math.sin(phi) * Math.sin(theta)
+  );
 }
 
 export function Globe3D({
@@ -81,7 +87,7 @@ export function Globe3D({
     let width = container.clientWidth || 600;
     let height = container.clientHeight || 600;
 
-    // Scene & Camera (Perfect intermediate distance)
+    // Scene & Camera
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 2000);
     camera.position.set(0, 0, 235);
@@ -105,7 +111,7 @@ export function Globe3D({
       .atmosphereColor(atmosphereColor)
       .atmosphereAltitude(atmosphereAltitude);
 
-    // Globe Material (GitHub dark navy sphere with glossy dotted hex polygons)
+    // Globe Material
     const globeMaterial = globe.globeMaterial() as THREE.MeshPhongMaterial;
     globeMaterial.color = new THREE.Color(0x050d1a);
     globeMaterial.emissive = new THREE.Color(emissive);
@@ -125,33 +131,35 @@ export function Globe3D({
       })
       .catch((err) => console.warn('Could not load globe.json:', err));
 
-    // Group wrapper offset 3/4 to the right & initial Europe front-facing orientation
+    // Group wrapper offset 3/4 to the right
     const globeGroup = new THREE.Group();
-    globeGroup.position.set(36, 0, 0); // 3/4 visible on right
-    globeGroup.rotation.x = 0.45;
-    globeGroup.rotation.y = -3.22; // Europe front-center
+    globeGroup.position.set(34, 0, 0);
+    // Tilt so Europe and Italy face the camera initially
+    globeGroup.rotation.x = 0.35;
+    globeGroup.rotation.y = -1.65;
     globeGroup.add(globe);
     scene.add(globeGroup);
 
-    // Radius & Anchors for tags
-    const radius = 100;
+    // Top Pin Anchors for 2D HTML markers (attached directly to globe for 100% coordinate alignment)
     const markerMeshes: { topMesh: THREE.Object3D; marker: GlobeMarker }[] = [];
 
     // Home Base (Italia / Campobasso)
     const homeMarker = markers.find((m) => m.label?.includes('Italia') || m.label?.includes('Home')) || markers[0];
+    const homeAltitude = (homeMarker?.stemHeight ? homeMarker.stemHeight - 1 : 0.08);
     const homeStartPos = homeMarker
-      ? latLngToVector3(homeMarker.lat, homeMarker.lng, radius * (homeMarker.stemHeight || 1.12))
+      ? getGlobePosition(globe, homeMarker.lat, homeMarker.lng, homeAltitude)
       : new THREE.Vector3(0, 0, 0);
 
     markers.forEach((m) => {
-      const topPos = latLngToVector3(m.lat, m.lng, radius * (m.stemHeight || 1.12));
+      const alt = m.stemHeight ? m.stemHeight - 1 : 0.08;
+      const topPos = getGlobePosition(globe, m.lat, m.lng, alt);
       const topAnchor = new THREE.Object3D();
       topAnchor.position.copy(topPos);
-      globeGroup.add(topAnchor);
+      globe.add(topAnchor); // Attached to globe directly!
       markerMeshes.push({ topMesh: topAnchor, marker: m });
     });
 
-    // Custom 3D Animated Flight Arcs directly connecting the tags
+    // Custom 3D Animated Flight Arcs directly connecting the tags in globe space
     const flightArcMeshes: {
       curve: THREE.QuadraticBezierCurve3;
       pulseMesh: THREE.Mesh;
@@ -160,17 +168,18 @@ export function Globe3D({
     }[] = [];
 
     const arcGroup = new THREE.Group();
-    globeGroup.add(arcGroup);
+    globe.add(arcGroup); // Attached to globe directly!
 
     markers.forEach((dest, idx) => {
       if (dest === homeMarker) return;
 
-      const destPos = latLngToVector3(dest.lat, dest.lng, radius * (dest.stemHeight || 1.12));
+      const alt = dest.stemHeight ? dest.stemHeight - 1 : 0.08;
+      const destPos = getGlobePosition(globe, dest.lat, dest.lng, alt);
       const distance = homeStartPos.distanceTo(destPos);
 
       // Midpoint arching above the globe
       const midPoint = homeStartPos.clone().lerp(destPos, 0.5);
-      const midDist = radius + Math.min(distance * 0.4, 55);
+      const midDist = 100 + Math.min(distance * 0.35, 45);
       midPoint.normalize().multiplyScalar(midDist);
 
       const curve = new THREE.QuadraticBezierCurve3(homeStartPos, midPoint, destPos);
@@ -181,13 +190,13 @@ export function Globe3D({
       const lineMaterial = new THREE.LineBasicMaterial({
         color: idx % 2 === 0 ? 0x38bdf8 : 0xd0ff71,
         transparent: true,
-        opacity: 0.5,
+        opacity: 0.45,
       });
       const line = new THREE.Line(geometry, lineMaterial);
       arcGroup.add(line);
 
       // Animated traveling light pulse / comet along the curve
-      const pulseGeom = new THREE.SphereGeometry(1.6, 12, 12);
+      const pulseGeom = new THREE.SphereGeometry(1.5, 12, 12);
       const pulseMat = new THREE.MeshBasicMaterial({
         color: idx % 2 === 0 ? 0xd0ff71 : 0x38bdf8,
       });
@@ -219,7 +228,7 @@ export function Globe3D({
     dLight3.position.set(-200, -500, -200);
     scene.add(dLight3);
 
-    // Mouse & Touch Drag Controls with Auto-Rotate Resumption
+    // Mouse & Touch Drag Controls
     let isDragging = false;
     let previousPos = { x: 0, y: 0 };
     let reqId: number;
