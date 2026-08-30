@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Check, Clock, Quote, Terminal, ListFilter } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLanguage } from '../i18n/LanguageContext';
 import { ProblemCopy } from '../i18n/translations';
 import { AIAssistantTerminal } from './AIAssistantTerminal';
 import { Keyboard } from './ui/keyboard';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface ProblemSolutionProps {
   onOpenContact: () => void;
@@ -102,6 +106,12 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({ onOpenContact 
   const [active, setActive] = useState(0);
   const [viewMode, setViewMode] = useState<'preset' | 'terminal'>('terminal');
 
+  // When viewMode changes the section height changes — tell GSAP to recalculate
+  useEffect(() => {
+    const timer = setTimeout(() => ScrollTrigger.refresh(), 350);
+    return () => clearTimeout(timer);
+  }, [viewMode]);
+
   const items = t.problems.items;
   const accent = ACCENTS[active % ACCENTS.length];
 
@@ -198,7 +208,7 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({ onOpenContact 
             </div>
 
             {/* Official Aceternity Keyboard right below terminal (desktop only, hidden on mobile & iPad/tablets) */}
-            <div className="hidden lg:flex flex-col items-center justify-center w-full overflow-visible py-2">
+            <div className="hidden lg:flex flex-col items-center justify-center w-full overflow-hidden py-2">
               <Keyboard enableSound={true} />
             </div>
           </motion.div>

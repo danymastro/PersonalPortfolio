@@ -35,9 +35,9 @@ export const Solutions: React.FC<SolutionsProps> = () => {
   const trackRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
 
-  // Wait a tick for layout to settle before measuring
+  // Wait for layout to fully settle (including preceding sections with keyboard zoom)
   useEffect(() => {
-    const timer = setTimeout(() => setReady(true), 300);
+    const timer = setTimeout(() => setReady(true), 500);
     return () => clearTimeout(timer);
   }, []);
 
