@@ -31,7 +31,7 @@ interface Globe3DProps {
   onMarkerHover?: (marker: GlobeMarker | null) => void;
 }
 
-const DEFAULT_EARTH_TEXTURE = "/textures/earth-day.jpg";
+const DEFAULT_EARTH_TEXTURE = "/textures/earth-blue-marble.jpg";
 const DEFAULT_BUMP_TEXTURE = "/textures/earth-topology.png";
 
 function latLngToVector3(lat: number, lng: number, radius: number): THREE.Vector3 {
@@ -63,7 +63,8 @@ export function Globe3D({
     textureUrl = DEFAULT_EARTH_TEXTURE,
     bumpMapUrl = DEFAULT_BUMP_TEXTURE,
     showAtmosphere = true,
-    atmosphereColor = "#38bdf8",
+    atmosphereColor = "#4da6ff",
+    atmosphereIntensity = 20,
     bumpScale = 3,
     autoRotateSpeed = 0.22,
   } = config;
@@ -91,21 +92,21 @@ export function Globe3D({
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // Globe Group: Offset to the right (so 3/4 is visible in the card) & orient Europe front-center
+    // Globe Group: Offset to the right (3/4 visible in card) & Europe front-center
     const globeGroup = new THREE.Group();
     globeGroup.position.set(28, 0, 0);
     globeGroup.rotation.x = 0.50;
     globeGroup.rotation.y = -3.22;
     scene.add(globeGroup);
 
-    // Globe Mesh
+    // Globe Mesh with sleek dark theme
     const sphereGeometry = new THREE.SphereGeometry(radius, 64, 64);
     const textureLoader = new THREE.TextureLoader();
 
     const globeMaterial = new THREE.MeshStandardMaterial({
-      color: 0xcccccc,
-      roughness: 0.65,
-      metalness: 0.12,
+      color: 0x112233,
+      roughness: 0.7,
+      metalness: 0.1,
     });
 
     textureLoader.load(
@@ -118,7 +119,7 @@ export function Globe3D({
       undefined,
       () => {
         textureLoader.load(
-          "https://unpkg.com/three-globe@2.31.0/example/img/earth-day.jpg",
+          "https://unpkg.com/three-globe@2.31.0/example/img/earth-blue-marble.jpg",
           (tex2) => {
             tex2.colorSpace = THREE.SRGBColorSpace;
             globeMaterial.map = tex2;
@@ -142,9 +143,9 @@ export function Globe3D({
     const globe = new THREE.Mesh(sphereGeometry, globeMaterial);
     globeGroup.add(globe);
 
-    // Atmosphere Glow Mesh
+    // Glowing Atmosphere Mesh for Dark Mode
     if (showAtmosphere) {
-      const atmosphereGeometry = new THREE.SphereGeometry(radius * 1.05, 64, 64);
+      const atmosphereGeometry = new THREE.SphereGeometry(radius * 1.08, 64, 64);
       const atmosphereMaterial = new THREE.ShaderMaterial({
         vertexShader: `
           varying vec3 vNormal;
@@ -157,15 +158,17 @@ export function Globe3D({
         `,
         fragmentShader: `
           uniform vec3 atmosphereColor;
+          uniform float intensity;
           varying vec3 vNormal;
           varying vec3 vPosition;
           void main() {
-            float intensity = pow(0.65 - dot(vNormal, vec3(0, 0, 1.0)), 2.2);
-            gl_FragColor = vec4(atmosphereColor, intensity * 0.45);
+            float fresnel = pow(1.0 - abs(dot(vNormal, normalize(-vPosition))), 2.2);
+            gl_FragColor = vec4(atmosphereColor, fresnel * (intensity / 10.0));
           }
         `,
         uniforms: {
           atmosphereColor: { value: new THREE.Color(atmosphereColor) },
+          intensity: { value: atmosphereIntensity },
         },
         side: THREE.BackSide,
         transparent: true,
@@ -177,17 +180,17 @@ export function Globe3D({
       scene.add(atmosphere);
     }
 
-    // Balanced Daylight Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.35);
+    // Moody Dark Mode Lighting with Blue Accents
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
     scene.add(ambientLight);
 
     const mainSun = new THREE.DirectionalLight(0xffffff, 1.3);
     mainSun.position.set(200, 150, 300);
     scene.add(mainSun);
 
-    const fillLight = new THREE.DirectionalLight(0x7dd3fc, 0.6);
-    fillLight.position.set(-200, -100, -200);
-    scene.add(fillLight);
+    const blueLight = new THREE.DirectionalLight(0x38bdf8, 0.7);
+    blueLight.position.set(-200, -100, -200);
+    scene.add(blueLight);
 
     // Marker Meshes
     const markerMeshes: {
@@ -196,7 +199,7 @@ export function Globe3D({
     }[] = [];
 
     markers.forEach((m) => {
-      const heightMult = m.stemHeight || 1.24;
+      const heightMult = m.stemHeight || 1.08;
       const surfacePos = latLngToVector3(m.lat, m.lng, radius * 1.001);
       const topPos = latLngToVector3(m.lat, m.lng, radius * heightMult);
       const lineHeight = topPos.distanceTo(surfacePos);
@@ -211,7 +214,7 @@ export function Globe3D({
 
       const stemGeom = new THREE.CylinderGeometry(0.3, 0.3, lineHeight, 8);
       const stemMat = new THREE.MeshBasicMaterial({
-        color: 0x334155,
+        color: 0x38bdf8,
         transparent: true,
         opacity: 0.8,
       });
@@ -341,7 +344,7 @@ export function Globe3D({
       window.removeEventListener("resize", onResize);
       renderer.dispose();
     };
-  }, [markers, textureUrl, bumpMapUrl, atmosphereColor, bumpScale, autoRotateSpeed, radius, showAtmosphere]);
+  }, [markers, textureUrl, bumpMapUrl, atmosphereColor, atmosphereIntensity, bumpScale, autoRotateSpeed, radius, showAtmosphere]);
 
   return (
     <div
@@ -378,10 +381,10 @@ export function Globe3D({
             onClick={() => onMarkerClick?.(marker)}
           >
             <div
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border-2 border-black text-xs font-mono font-bold transition-all cursor-pointer neo-shadow-sm ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-mono font-bold transition-all cursor-pointer ${
                 isPromoted
-                  ? "bg-[#D0FF71] text-black scale-110 shadow-[0_0_15px_rgba(208,255,113,0.9)]"
-                  : "bg-white text-slate-900 hover:bg-[#FDE047] hover:scale-105"
+                  ? "bg-[#D0FF71] text-black border-black scale-115 shadow-[0_0_20px_rgba(208,255,113,0.9)]"
+                  : "bg-neutral-900/90 text-white border-white/25 backdrop-blur-md hover:bg-neutral-900 hover:scale-105 shadow-lg"
               }`}
             >
               {marker.flag ? (
@@ -390,10 +393,10 @@ export function Globe3D({
                 <img
                   src={marker.src}
                   alt={marker.label || "Marker"}
-                  className="w-4 h-4 rounded-full object-cover border border-black/50 shrink-0"
+                  className="w-4 h-4 rounded-full object-cover border border-white/40 shrink-0"
                 />
               ) : (
-                <span className="w-2 h-2 rounded-full bg-[#2563EB] shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-[#D0FF71] shrink-0" />
               )}
               {marker.label && (
                 <span className="whitespace-nowrap font-bold text-[11px]">
