@@ -29,11 +29,11 @@ export const AboutSection: React.FC<AboutProps> = ({ onOpenContact }) => {
 
               <div className="relative bg-[#FFFDF5] border-2 border-black rounded-3xl p-6 sm:p-8 neo-shadow flex flex-col items-center text-center space-y-6">
                 {/* Danilo Avatar Image */}
-                <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full bg-[#FDE047] border-4 border-black overflow-hidden relative shadow-inner flex items-center justify-center pt-3">
+                <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full bg-[#FDE047] border-4 border-black overflow-hidden relative shadow-inner flex items-center justify-center">
                   <img
                     src={personal.avatar}
                     alt={personal.name}
-                    className="w-full h-full object-cover scale-110 object-top"
+                    className="w-full h-full object-cover object-[center_50%] scale-[1.35] transition-transform duration-300 hover:scale-[1.4]"
                   />
                 </div>
 
