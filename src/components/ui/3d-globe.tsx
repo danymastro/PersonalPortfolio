@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import ThreeGlobe from 'three-globe';
 import { cn } from '@/lib/utils';
 
@@ -99,16 +98,6 @@ export function Globe3D({
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
 
-    // Controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.enableZoom = false; // Lock zoom as requested
-    controls.autoRotate = autoRotate;
-    controls.autoRotateSpeed = autoRotateSpeed;
-    controls.minPolarAngle = Math.PI / 3.5;
-    controls.maxPolarAngle = Math.PI - Math.PI / 3;
-
     // GitHub Style ThreeGlobe instance
     const globe = new ThreeGlobe()
       .showGlobe(true)
@@ -136,31 +125,85 @@ export function Globe3D({
       })
       .catch((err) => console.warn('Could not load globe.json:', err));
 
-    // Home Base (Campobasso / Italy)
-    const homeBase = { lat: 41.56, lng: 14.66 };
+    // Group wrapper offset 3/4 to the right & initial Europe front-facing orientation
+    const globeGroup = new THREE.Group();
+    globeGroup.position.set(32, 0, 0); // 3/4 visible on right
+    globeGroup.rotation.x = 0.45;
+    globeGroup.rotation.y = -3.22; // Europe front-center
+    globeGroup.add(globe);
+    scene.add(globeGroup);
 
-    // Flight Arcs connecting Home Base to all visited destinations
-    const arcsData = markers
-      .filter((m) => !(Math.abs(m.lat - homeBase.lat) < 1 && Math.abs(m.lng - homeBase.lng) < 1))
-      .map((m, idx) => ({
-        startLat: homeBase.lat,
-        startLng: homeBase.lng,
-        endLat: m.lat,
-        endLng: m.lng,
-        color: idx % 2 === 0 ? ['#2563EB', '#38BDF8', '#D0FF71'] : ['#38BDF8', '#D0FF71', '#FDE047'],
-      }));
+    // Radius & Anchors for tags
+    const radius = 100;
+    const markerMeshes: { topMesh: THREE.Object3D; marker: GlobeMarker }[] = [];
 
-    globe
-      .arcsData(arcsData)
-      .arcColor('color')
-      .arcAltitudeAutoScale(0.28)
-      .arcStroke(0.6)
-      .arcDashLength(0.85)
-      .arcDashGap(3)
-      .arcDashInitialGap((e: any) => (e.startLat + e.endLat) % 5)
-      .arcDashAnimateTime(1200);
+    // Home Base (Italia / Campobasso)
+    const homeMarker = markers.find((m) => m.label?.includes('Italia') || m.label?.includes('Home')) || markers[0];
+    const homeStartPos = homeMarker
+      ? latLngToVector3(homeMarker.lat, homeMarker.lng, radius * (homeMarker.stemHeight || 1.12))
+      : new THREE.Vector3(0, 0, 0);
 
-    // Pulsing Rings at destinations
+    markers.forEach((m) => {
+      const topPos = latLngToVector3(m.lat, m.lng, radius * (m.stemHeight || 1.12));
+      const topAnchor = new THREE.Object3D();
+      topAnchor.position.copy(topPos);
+      globeGroup.add(topAnchor);
+      markerMeshes.push({ topMesh: topAnchor, marker: m });
+    });
+
+    // Custom 3D Animated Flight Arcs directly connecting the tags
+    const flightArcMeshes: {
+      curve: THREE.QuadraticBezierCurve3;
+      pulseMesh: THREE.Mesh;
+      speed: number;
+      progress: number;
+    }[] = [];
+
+    const arcGroup = new THREE.Group();
+    globeGroup.add(arcGroup);
+
+    markers.forEach((dest, idx) => {
+      if (dest === homeMarker) return;
+
+      const destPos = latLngToVector3(dest.lat, dest.lng, radius * (dest.stemHeight || 1.12));
+      const distance = homeStartPos.distanceTo(destPos);
+
+      // Midpoint arching above the globe
+      const midPoint = homeStartPos.clone().lerp(destPos, 0.5);
+      const midDist = radius + Math.min(distance * 0.4, 55);
+      midPoint.normalize().multiplyScalar(midDist);
+
+      const curve = new THREE.QuadraticBezierCurve3(homeStartPos, midPoint, destPos);
+      const points = curve.getPoints(50);
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+      // Curved Track Line
+      const lineMaterial = new THREE.LineBasicMaterial({
+        color: idx % 2 === 0 ? 0x38bdf8 : 0xd0ff71,
+        transparent: true,
+        opacity: 0.5,
+      });
+      const line = new THREE.Line(geometry, lineMaterial);
+      arcGroup.add(line);
+
+      // Animated traveling light pulse / comet along the curve
+      const pulseGeom = new THREE.SphereGeometry(1.6, 12, 12);
+      const pulseMat = new THREE.MeshBasicMaterial({
+        color: idx % 2 === 0 ? 0xd0ff71 : 0x38bdf8,
+      });
+      const pulseMesh = new THREE.Mesh(pulseGeom, pulseMat);
+      pulseMesh.position.copy(homeStartPos);
+      arcGroup.add(pulseMesh);
+
+      flightArcMeshes.push({
+        curve,
+        pulseMesh,
+        speed: 0.006 + (idx % 4) * 0.002,
+        progress: (idx * 0.15) % 1,
+      });
+    });
+
+    // Pulsing Rings at destination surfaces
     const ringsData = markers.map((m) => ({
       lat: m.lat,
       lng: m.lng,
@@ -177,28 +220,8 @@ export function Globe3D({
       .ringPropagationSpeed('propagationSpeed')
       .ringRepeatPeriod('repeatPeriod');
 
-    // Group wrapper offset 3/4 to the right & initial Europe front-facing orientation
-    const globeGroup = new THREE.Group();
-    globeGroup.position.set(32, 0, 0); // 3/4 visible on right
-    globeGroup.rotation.x = 0.45;
-    globeGroup.rotation.y = -3.22; // Europe front-center
-    globeGroup.add(globe);
-    scene.add(globeGroup);
-
-    // Top Pin Anchors for 2D HTML markers
-    const markerMeshes: { topMesh: THREE.Object3D; marker: GlobeMarker }[] = [];
-    const radius = 100; // Standard ThreeGlobe radius
-
-    markers.forEach((m) => {
-      const topPos = latLngToVector3(m.lat, m.lng, radius * (m.stemHeight || 1.12));
-      const topAnchor = new THREE.Object3D();
-      topAnchor.position.copy(topPos);
-      globeGroup.add(topAnchor);
-      markerMeshes.push({ topMesh: topAnchor, marker: m });
-    });
-
     // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
     scene.add(ambientLight);
 
     const dLight1 = new THREE.DirectionalLight(0xffffff, 1.2);
@@ -213,6 +236,47 @@ export function Globe3D({
     dLight3.position.set(-200, -500, -200);
     scene.add(dLight3);
 
+    // Mouse & Touch Drag Controls with Auto-Rotate Resumption
+    let isDragging = false;
+    let previousPos = { x: 0, y: 0 };
+    let reqId: number;
+
+    const onPointerDown = (e: MouseEvent | TouchEvent) => {
+      isDragging = true;
+      const x = "touches" in e ? e.touches[0].clientX : e.clientX;
+      const y = "touches" in e ? e.touches[0].clientY : e.clientY;
+      previousPos = { x, y };
+    };
+
+    const onPointerMove = (e: MouseEvent | TouchEvent) => {
+      if (!isDragging) return;
+      const x = "touches" in e ? e.touches[0].clientX : e.clientX;
+      const y = "touches" in e ? e.touches[0].clientY : e.clientY;
+
+      const deltaX = x - previousPos.x;
+      const deltaY = y - previousPos.y;
+
+      globeGroup.rotation.y += deltaX * 0.005;
+      globeGroup.rotation.x += deltaY * 0.005;
+
+      // Restrict vertical tilt
+      globeGroup.rotation.x = Math.max(-0.4, Math.min(0.8, globeGroup.rotation.x));
+
+      previousPos = { x, y };
+    };
+
+    const onPointerUp = () => {
+      isDragging = false;
+    };
+
+    container.addEventListener("mousedown", onPointerDown);
+    window.addEventListener("mousemove", onPointerMove);
+    window.addEventListener("mouseup", onPointerUp);
+
+    container.addEventListener("touchstart", onPointerDown, { passive: true });
+    window.addEventListener("touchmove", onPointerMove, { passive: true });
+    window.addEventListener("touchend", onPointerUp);
+
     // Resize Handler
     const onResize = () => {
       if (!container || !renderer || !camera) return;
@@ -225,10 +289,20 @@ export function Globe3D({
     window.addEventListener("resize", onResize);
 
     // Animation Loop
-    let reqId: number;
     const animate = () => {
-      controls.update();
+      // Continuous Self-Rotation
+      if (!isDragging && autoRotate) {
+        globeGroup.rotation.y += autoRotateSpeed * 0.004;
+      }
+
       globeGroup.updateMatrixWorld(true);
+
+      // Animate flight pulses along the curves from Italy tag to Destination tags
+      flightArcMeshes.forEach((item) => {
+        item.progress = (item.progress + item.speed) % 1;
+        const currentPos = item.curve.getPointAt(item.progress);
+        item.pulseMesh.position.copy(currentPos);
+      });
 
       // Real-time 60fps DOM transform sync for HTML tags
       markerMeshes.forEach(({ topMesh }, idx) => {
@@ -265,8 +339,13 @@ export function Globe3D({
 
     return () => {
       cancelAnimationFrame(reqId);
+      container.removeEventListener("mousedown", onPointerDown);
+      window.removeEventListener("mousemove", onPointerMove);
+      window.removeEventListener("mouseup", onPointerUp);
+      container.removeEventListener("touchstart", onPointerDown);
+      window.removeEventListener("touchmove", onPointerMove);
+      window.removeEventListener("touchend", onPointerUp);
       window.removeEventListener("resize", onResize);
-      controls.dispose();
       renderer.dispose();
     };
   }, [markers, pointLight, atmosphereColor, showAtmosphere, atmosphereAltitude, polygonColor, emissive, emissiveIntensity, shininess, autoRotate, autoRotateSpeed]);
@@ -314,12 +393,6 @@ export function Globe3D({
             >
               {marker.flag ? (
                 <span className="text-sm">{marker.flag}</span>
-              ) : marker.src ? (
-                <img
-                  src={marker.src}
-                  alt={marker.label || "Marker"}
-                  className="w-4 h-4 rounded-full object-cover border border-black/50 shrink-0"
-                />
               ) : (
                 <span className="w-2 h-2 rounded-full bg-[#2563EB] shrink-0" />
               )}
