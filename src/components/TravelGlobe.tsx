@@ -1,38 +1,88 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plane, MapPin, Compass, Sparkles } from 'lucide-react';
-import { WorldGlobe } from './ui/globe';
+import { Globe3D, GlobeMarker } from './ui/3d-globe';
 import { useLanguage } from '../i18n/LanguageContext';
 
-export interface TravelDestination {
-  id: string;
-  name: string;
-  flag: string;
-  lat: number;
-  lng: number;
-}
-
-const DESTINATIONS: TravelDestination[] = [
-  { id: 'italy', name: 'Italia (Home)', flag: '🇮🇹', lat: 41.56, lng: 14.66 },
-  { id: 'spain', name: 'Spagna', flag: '🇪🇸', lat: 40.41, lng: -3.70 },
-  { id: 'france', name: 'Francia', flag: '🇫🇷', lat: 48.85, lng: 2.35 },
-  { id: 'uk', name: 'Regno Unito', flag: '🇬🇧', lat: 51.50, lng: -0.12 },
-  { id: 'germany', name: 'Germania', flag: '🇩🇪', lat: 52.52, lng: 13.40 },
-  { id: 'greece', name: 'Grecia', flag: '🇬🇷', lat: 37.98, lng: 23.72 },
-  { id: 'netherlands', name: 'Paesi Bassi', flag: '🇳🇱', lat: 52.36, lng: 4.90 },
-  { id: 'usa', name: 'Stati Uniti', flag: '🇺🇸', lat: 40.71, lng: -74.00 },
-  { id: 'japan', name: 'Giappone', flag: '🇯🇵', lat: 35.67, lng: 139.65 },
+const travelMarkers: GlobeMarker[] = [
+  {
+    lat: 41.56,
+    lng: 14.66,
+    src: 'https://assets.aceternity.com/avatars/1.webp',
+    label: 'Campobasso (Home)',
+  },
+  {
+    lat: 41.9028,
+    lng: 12.4964,
+    src: 'https://assets.aceternity.com/avatars/2.webp',
+    label: 'Roma',
+  },
+  {
+    lat: 45.4642,
+    lng: 9.1900,
+    src: 'https://assets.aceternity.com/avatars/3.webp',
+    label: 'Milano',
+  },
+  {
+    lat: 41.3879,
+    lng: 2.1699,
+    src: 'https://assets.aceternity.com/avatars/4.webp',
+    label: 'Barcellona',
+  },
+  {
+    lat: 40.4168,
+    lng: -3.7038,
+    src: 'https://assets.aceternity.com/avatars/5.webp',
+    label: 'Madrid',
+  },
+  {
+    lat: 48.8566,
+    lng: 2.3522,
+    src: 'https://assets.aceternity.com/avatars/6.webp',
+    label: 'Parigi',
+  },
+  {
+    lat: 51.5074,
+    lng: -0.1278,
+    src: 'https://assets.aceternity.com/avatars/7.webp',
+    label: 'Londra',
+  },
+  {
+    lat: 52.5200,
+    lng: 13.4050,
+    src: 'https://assets.aceternity.com/avatars/8.webp',
+    label: 'Berlino',
+  },
+  {
+    lat: 52.3676,
+    lng: 4.9041,
+    src: 'https://assets.aceternity.com/avatars/9.webp',
+    label: 'Amsterdam',
+  },
+  {
+    lat: 37.9838,
+    lng: 23.7275,
+    src: 'https://assets.aceternity.com/avatars/10.webp',
+    label: 'Atene',
+  },
+  {
+    lat: 40.7128,
+    lng: -74.0060,
+    src: 'https://assets.aceternity.com/avatars/11.webp',
+    label: 'New York',
+  },
+  {
+    lat: 35.6762,
+    lng: 139.6503,
+    src: 'https://assets.aceternity.com/avatars/12.webp',
+    label: 'Tokyo',
+  },
 ];
 
 export const TravelGlobe: React.FC = () => {
   const { language } = useLanguage();
   const isIt = language === 'it';
-  const [selectedDest, setSelectedDest] = useState<string | null>(null);
-
-  const markers = DESTINATIONS.map((d) => ({
-    location: [d.lat, d.lng] as [number, number],
-    size: d.id === selectedDest ? 0.12 : d.id === 'italy' ? 0.09 : 0.06,
-  }));
+  const [activeCity, setActiveCity] = useState<string | null>(null);
 
   return (
     <div className="relative group w-full my-8">
@@ -74,27 +124,33 @@ export const TravelGlobe: React.FC = () => {
                 : 'Outside of coding, traveling is my biggest passion. Discovering new cultures and cities broadens my horizons and teaches me to approach problems from diverse angles — a curiosity I pour directly into every digital product I build.'}
             </p>
 
-            {/* Pinned Nations Chips */}
+            {/* Pinned Nations / Cities Chips */}
             <div className="space-y-2.5 pt-2">
               <p className="text-[11px] font-mono font-bold text-white/50 uppercase tracking-wider flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5 text-[#D0FF71]" />
-                <span>{isIt ? 'Nazioni & Destinazioni visitate' : 'Visited Countries & Destinations'}</span>
+                <span>{isIt ? 'Destinazioni & Nazioni esplorate' : 'Explored Cities & Destinations'}</span>
               </p>
 
-              <div className="flex flex-wrap gap-2">
-                {DESTINATIONS.map((d) => (
+              <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto pr-1">
+                {travelMarkers.map((m) => (
                   <button
-                    key={d.id}
+                    key={m.label}
                     type="button"
-                    onClick={() => setSelectedDest(selectedDest === d.id ? null : d.id)}
+                    onClick={() => setActiveCity(activeCity === m.label ? null : m.label)}
                     className={`px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                      selectedDest === d.id
+                      activeCity === m.label
                         ? 'bg-[#D0FF71] text-black border-black neo-shadow-sm scale-105'
                         : 'bg-white/5 border-white/15 text-white/90 hover:bg-white/15 hover:border-white/30'
                     }`}
                   >
-                    <span>{d.flag}</span>
-                    <span>{d.name}</span>
+                    {m.src && (
+                      <img
+                        src={m.src}
+                        alt={m.label}
+                        className="w-3.5 h-3.5 rounded-full object-cover"
+                      />
+                    )}
+                    <span>{m.label}</span>
                   </button>
                 ))}
               </div>
@@ -102,18 +158,28 @@ export const TravelGlobe: React.FC = () => {
 
             <div className="flex items-center gap-3 pt-2 text-xs font-mono text-white/60">
               <span className="w-2.5 h-2.5 rounded-full bg-[#D0FF71] animate-ping" />
-              <span>{isIt ? 'Globo 3D interattivo: trascina per ruotare' : 'Interactive 3D Globe: drag to rotate'}</span>
+              <span>{isIt ? 'Globo 3D interattivo: trascina per ruotare ed esplorare i pin' : 'Interactive 3D Globe: drag to rotate and explore pins'}</span>
             </div>
           </div>
 
           {/* 3D Interactive Globe Canvas */}
-          <div className="lg:col-span-7 h-[360px] sm:h-[460px] md:h-[500px] w-full relative flex items-center justify-center">
-            <div className="w-full h-full flex items-center justify-center">
-              <WorldGlobe markers={markers} />
-            </div>
+          <div className="lg:col-span-7 h-[380px] sm:h-[460px] md:h-[500px] w-full relative flex items-center justify-center">
+            <Globe3D
+              className="w-full h-full"
+              markers={travelMarkers}
+              config={{
+                atmosphereColor: '#38bdf8',
+                atmosphereIntensity: 18,
+                bumpScale: 5,
+                autoRotateSpeed: 0.35,
+              }}
+              onMarkerHover={(m) => {
+                if (m) setActiveCity(m.label);
+              }}
+            />
 
             {/* Interactive Overlay badge */}
-            <div className="absolute bottom-3 right-3 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/20 text-[10px] font-mono font-bold text-white/80 flex items-center gap-1.5 pointer-events-none">
+            <div className="absolute bottom-3 right-3 px-3 py-1 bg-black/70 backdrop-blur-md rounded-full border border-white/20 text-[10px] font-mono font-bold text-white/90 flex items-center gap-1.5 pointer-events-none z-30">
               <Plane className="w-3 h-3 text-[#38BDF8]" />
               <span>Base: Campobasso, IT (41.56° N, 14.66° E)</span>
             </div>
