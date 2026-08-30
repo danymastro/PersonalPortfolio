@@ -54,6 +54,8 @@ export const Solutions: React.FC<SolutionsProps> = () => {
 
     if (scrollDistance <= 0) return;
 
+    const isMobile = window.innerWidth < 768;
+
     // Create the GSAP timeline: translate the track left by scrollDistance
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -62,8 +64,8 @@ export const Solutions: React.FC<SolutionsProps> = () => {
         pin: true,
         // scrub: true links the animation 1:1 to scroll position (fully reversible)
         scrub: 1,
-        // Start when section top hits viewport top
-        start: 'top top',
+        // Start: on mobile lock slightly lower (70px below top, under navbar), on desktop top top
+        start: isMobile ? 'top 70px' : 'top top',
         // End after scrolling exactly scrollDistance extra pixels
         end: () => `+=${scrollDistance}`,
         // Prevent address-bar-resize jank
