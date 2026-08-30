@@ -579,9 +579,9 @@ const it: TranslationSchema = {
 
   about: {
     badge: 'Dietro lo schermo',
-    titleLine1: 'Traduco problemi',
-    titleHighlight: 'in prodotti',
-    titleLine2: 'che vanno online.',
+    titleLine1: 'Vi racconto',
+    titleHighlight: 'di me.',
+    titleLine2: '',
     roleTag: 'Full-Stack Developer · Founder di VibesOut',
     stickers: {
       location: '📍 Campobasso · Remoto',
@@ -1041,9 +1041,9 @@ const en: TranslationSchema = {
 
   about: {
     badge: 'Behind the screen',
-    titleLine1: 'I translate problems',
-    titleHighlight: 'into products',
-    titleLine2: 'that actually ship.',
+    titleLine1: 'A little',
+    titleHighlight: 'about me.',
+    titleLine2: '',
     roleTag: 'Full-Stack Developer · Founder of VibesOut',
     stickers: {
       location: '📍 Campobasso · Remote',
