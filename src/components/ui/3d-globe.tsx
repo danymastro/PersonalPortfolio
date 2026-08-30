@@ -59,26 +59,26 @@ export function Globe3D({
   const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
 
   const {
-    radius = 92,
+    radius = 110,
     textureUrl = DEFAULT_EARTH_TEXTURE,
     bumpMapUrl = DEFAULT_BUMP_TEXTURE,
     showAtmosphere = true,
     atmosphereColor = "#38bdf8",
     bumpScale = 3,
-    autoRotateSpeed = 0.25,
+    autoRotateSpeed = 0.22,
   } = config;
 
   useEffect(() => {
     if (!containerRef.current || !canvasRef.current) return;
 
     const container = containerRef.current;
-    let width = container.clientWidth || 550;
-    let height = container.clientHeight || 550;
+    let width = container.clientWidth || 600;
+    let height = container.clientHeight || 600;
 
-    // Scene & Camera
+    // Scene & Camera (Locked zoom distance)
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1500);
-    camera.position.set(0, 0, 230);
+    camera.position.set(0, 0, 215);
     camera.lookAt(0, 0, 0);
 
     // Renderer
@@ -91,10 +91,11 @@ export function Globe3D({
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // Globe Group: Rotate Europe and Northern Europe directly to front-center
+    // Globe Group: Offset to the right (so 3/4 is visible in the card) & orient Europe front-center
     const globeGroup = new THREE.Group();
-    globeGroup.rotation.x = 0.52;
-    globeGroup.rotation.y = -3.25;
+    globeGroup.position.set(28, 0, 0);
+    globeGroup.rotation.x = 0.50;
+    globeGroup.rotation.y = -3.22;
     scene.add(globeGroup);
 
     // Globe Mesh
@@ -268,13 +269,6 @@ export function Globe3D({
       isDragging = false;
     };
 
-    // Zoom on wheel
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      camera.position.z += e.deltaY * 0.15;
-      camera.position.z = Math.max(160, Math.min(300, camera.position.z));
-    };
-
     container.addEventListener("mousedown", onPointerDown);
     window.addEventListener("mousemove", onPointerMove);
     window.addEventListener("mouseup", onPointerUp);
@@ -282,7 +276,6 @@ export function Globe3D({
     container.addEventListener("touchstart", onPointerDown, { passive: true });
     window.addEventListener("touchmove", onPointerMove, { passive: true });
     window.addEventListener("touchend", onPointerUp);
-    container.addEventListener("wheel", onWheel, { passive: false });
 
     // Resize Handler
     const onResize = () => {
@@ -345,7 +338,6 @@ export function Globe3D({
       container.removeEventListener("touchstart", onPointerDown);
       window.removeEventListener("touchmove", onPointerMove);
       window.removeEventListener("touchend", onPointerUp);
-      container.removeEventListener("wheel", onWheel);
       window.removeEventListener("resize", onResize);
       renderer.dispose();
     };

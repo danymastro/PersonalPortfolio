@@ -9,91 +9,91 @@ const countryMarkers: GlobeMarker[] = [
     lng: 12.5674,
     flag: '🇮🇹',
     label: 'Italia (Home)',
-    stemHeight: 1.14,
+    stemHeight: 1.08,
   },
   {
     lat: 37.0902,
     lng: -95.7129,
     flag: '🇺🇸',
     label: 'USA',
-    stemHeight: 1.10,
+    stemHeight: 1.06,
   },
   {
     lat: 51.1657,
     lng: 10.4515,
     flag: '🇩🇪',
     label: 'Germania',
-    stemHeight: 1.10,
+    stemHeight: 1.07,
   },
   {
     lat: 47.5162,
     lng: 14.5501,
     flag: '🇦🇹',
     label: 'Austria',
-    stemHeight: 1.16,
+    stemHeight: 1.10,
   },
   {
     lat: 46.8182,
     lng: 8.2275,
     flag: '🇨🇭',
     label: 'Svizzera',
-    stemHeight: 1.10,
+    stemHeight: 1.06,
   },
   {
     lat: 60.1282,
     lng: 18.6435,
     flag: '🇸🇪',
     label: 'Svezia',
-    stemHeight: 1.12,
+    stemHeight: 1.08,
   },
   {
     lat: 52.1326,
     lng: 5.2913,
     flag: '🇳🇱',
     label: 'Olanda',
-    stemHeight: 1.14,
+    stemHeight: 1.09,
   },
   {
     lat: 56.2639,
     lng: 9.5018,
     flag: '🇩🇰',
     label: 'Danimarca',
-    stemHeight: 1.16,
+    stemHeight: 1.11,
   },
   {
     lat: 45.1000,
     lng: 15.2000,
     flag: '🇭🇷',
     label: 'Croazia',
-    stemHeight: 1.08,
+    stemHeight: 1.05,
   },
   {
     lat: 43.9159,
     lng: 17.6791,
     flag: '🇧🇦',
     label: 'Bosnia',
-    stemHeight: 1.15,
+    stemHeight: 1.10,
   },
   {
     lat: 35.1264,
     lng: 33.4299,
     flag: '🇨🇾',
     label: 'Cipro',
-    stemHeight: 1.10,
+    stemHeight: 1.06,
   },
   {
     lat: 60.4720,
     lng: 8.4689,
     flag: '🇳🇴',
     label: 'Norvegia',
-    stemHeight: 1.12,
+    stemHeight: 1.08,
   },
   {
     lat: 61.9241,
     lng: 25.7482,
     flag: '🇫🇮',
     label: 'Finlandia',
-    stemHeight: 1.15,
+    stemHeight: 1.10,
   },
 ];
 
@@ -178,21 +178,21 @@ export const TravelGlobe: React.FC = () => {
 
             <div className="flex items-center gap-2 pt-1 text-xs font-mono text-slate-500">
               <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-ping" />
-              <span>{isIt ? 'Trascina per ruotare o usa la rotella per zoomare' : 'Drag to rotate or scroll to zoom'}</span>
+              <span>{isIt ? 'Trascina per ruotare ed esplorare il globo 3D' : 'Drag to rotate & explore the 3D globe'}</span>
             </div>
           </div>
 
-          {/* Right Column: Centered Large 3D Globe */}
-          <div className="lg:col-span-7 h-[480px] sm:h-[540px] md:h-[580px] w-full relative flex items-center justify-center">
+          {/* Right Column: Centered Large 3D Globe (3/4 visible on the right) */}
+          <div className="lg:col-span-7 h-[490px] sm:h-[550px] md:h-[600px] w-full relative flex items-center justify-center">
             <Globe3D
               className="w-full h-full"
               markers={countryMarkers}
               activeMarkerLabel={activeCountry}
               config={{
-                radius: 92,
+                radius: 110,
                 atmosphereColor: '#38bdf8',
                 bumpScale: 3,
-                autoRotateSpeed: 0.25,
+                autoRotateSpeed: 0.22,
                 showAtmosphere: true,
               }}
               onMarkerHover={(m) => {
