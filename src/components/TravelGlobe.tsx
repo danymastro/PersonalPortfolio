@@ -9,72 +9,133 @@ const travelMarkers: GlobeMarker[] = [
     lng: 14.66,
     src: 'https://assets.aceternity.com/avatars/1.webp',
     label: 'Campobasso (Home)',
-  },
-  {
-    lat: 41.9028,
-    lng: 12.4964,
-    src: 'https://assets.aceternity.com/avatars/2.webp',
-    label: 'Roma',
-  },
-  {
-    lat: 45.4642,
-    lng: 9.1900,
-    src: 'https://assets.aceternity.com/avatars/3.webp',
-    label: 'Milano',
-  },
-  {
-    lat: 41.3879,
-    lng: 2.1699,
-    src: 'https://assets.aceternity.com/avatars/4.webp',
-    label: 'Barcellona',
-  },
-  {
-    lat: 40.4168,
-    lng: -3.7038,
-    src: 'https://assets.aceternity.com/avatars/5.webp',
-    label: 'Madrid',
-  },
-  {
-    lat: 48.8566,
-    lng: 2.3522,
-    src: 'https://assets.aceternity.com/avatars/6.webp',
-    label: 'Parigi',
-  },
-  {
-    lat: 51.5074,
-    lng: -0.1278,
-    src: 'https://assets.aceternity.com/avatars/7.webp',
-    label: 'Londra',
-  },
-  {
-    lat: 52.5200,
-    lng: 13.4050,
-    src: 'https://assets.aceternity.com/avatars/8.webp',
-    label: 'Berlino',
-  },
-  {
-    lat: 52.3676,
-    lng: 4.9041,
-    src: 'https://assets.aceternity.com/avatars/9.webp',
-    label: 'Amsterdam',
-  },
-  {
-    lat: 37.9838,
-    lng: 23.7275,
-    src: 'https://assets.aceternity.com/avatars/10.webp',
-    label: 'Atene',
+    stemHeight: 1.28,
   },
   {
     lat: 40.7128,
     lng: -74.0060,
-    src: 'https://assets.aceternity.com/avatars/11.webp',
+    src: 'https://assets.aceternity.com/avatars/2.webp',
     label: 'New York',
+    stemHeight: 1.22,
   },
   {
-    lat: 35.6762,
-    lng: 139.6503,
+    lat: 59.3293,
+    lng: 18.0686,
+    src: 'https://assets.aceternity.com/avatars/3.webp',
+    label: 'Stoccolma',
+    stemHeight: 1.22,
+  },
+  {
+    lat: 59.8586,
+    lng: 17.6389,
+    src: 'https://assets.aceternity.com/avatars/4.webp',
+    label: 'Uppsala',
+    stemHeight: 1.38,
+  },
+  {
+    lat: 55.6761,
+    lng: 12.5683,
+    src: 'https://assets.aceternity.com/avatars/5.webp',
+    label: 'Copenaghen',
+    stemHeight: 1.20,
+  },
+  {
+    lat: 55.6050,
+    lng: 13.0038,
+    src: 'https://assets.aceternity.com/avatars/6.webp',
+    label: 'Malmö',
+    stemHeight: 1.35,
+  },
+  {
+    lat: 59.9139,
+    lng: 10.7522,
+    src: 'https://assets.aceternity.com/avatars/7.webp',
+    label: 'Oslo',
+    stemHeight: 1.26,
+  },
+  {
+    lat: 57.7089,
+    lng: 11.9746,
+    src: 'https://assets.aceternity.com/avatars/8.webp',
+    label: 'Göteborg',
+    stemHeight: 1.40,
+  },
+  {
+    lat: 60.1699,
+    lng: 24.9384,
+    src: 'https://assets.aceternity.com/avatars/9.webp',
+    label: 'Helsinki',
+    stemHeight: 1.22,
+  },
+  {
+    lat: 69.6492,
+    lng: 18.9553,
+    src: 'https://assets.aceternity.com/avatars/10.webp',
+    label: 'Tromsø',
+    stemHeight: 1.26,
+  },
+  {
+    lat: 64.1466,
+    lng: -21.9426,
+    src: 'https://assets.aceternity.com/avatars/11.webp',
+    label: 'Reykjavik',
+    stemHeight: 1.22,
+  },
+  {
+    lat: 52.3676,
+    lng: 4.9041,
     src: 'https://assets.aceternity.com/avatars/12.webp',
-    label: 'Tokyo',
+    label: 'Amsterdam',
+    stemHeight: 1.24,
+  },
+  {
+    lat: 49.4521,
+    lng: 11.0767,
+    src: 'https://assets.aceternity.com/avatars/13.webp',
+    label: 'Norimberga',
+    stemHeight: 1.36,
+  },
+  {
+    lat: 48.1351,
+    lng: 11.5820,
+    src: 'https://assets.aceternity.com/avatars/1.webp',
+    label: 'Monaco di Baviera',
+    stemHeight: 1.20,
+  },
+  {
+    lat: 48.2600,
+    lng: 11.4340,
+    src: 'https://assets.aceternity.com/avatars/2.webp',
+    label: 'Dachau',
+    stemHeight: 1.35,
+  },
+  {
+    lat: 47.2692,
+    lng: 11.4041,
+    src: 'https://assets.aceternity.com/avatars/3.webp',
+    label: 'Innsbruck',
+    stemHeight: 1.28,
+  },
+  {
+    lat: 45.2267,
+    lng: 13.5958,
+    src: 'https://assets.aceternity.com/avatars/4.webp',
+    label: 'Poreč',
+    stemHeight: 1.20,
+  },
+  {
+    lat: 43.8563,
+    lng: 18.4131,
+    src: 'https://assets.aceternity.com/avatars/5.webp',
+    label: 'Sarajevo',
+    stemHeight: 1.26,
+  },
+  {
+    lat: 34.7071,
+    lng: 33.0226,
+    src: 'https://assets.aceternity.com/avatars/6.webp',
+    label: 'Limassol',
+    stemHeight: 1.22,
   },
 ];
 
@@ -121,18 +182,21 @@ export const TravelGlobe: React.FC = () => {
 
             <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
               {isIt
-                ? 'Quando non sviluppo software, viaggiare è la mia più grande passione. Visitare nuove nazioni, culture e città allarga gli orizzonti e mi insegna a guardare ogni problema da prospettive diverse — una curiosità che poi trasferisco in ogni prodotto digitale che realizzo.'
-                : 'Outside of coding, traveling is my biggest passion. Discovering new cultures and cities broadens my horizons and teaches me to approach problems from diverse angles — a curiosity I pour directly into every digital product I build.'}
+                ? 'Quando non sviluppo software, viaggiare è la mia più grande passione: dalle grandi capitali europee al nord Europa fino a New York. Visitare nuove culture e città allarga gli orizzonti e mi insegna ad approcciare ogni sfida da prospettive diverse.'
+                : 'Outside of coding, traveling is my biggest passion: from major European capitals to Northern Europe and New York. Discovering new cultures and cities broadens my horizons and teaches me to approach challenges from diverse angles.'}
             </p>
 
             {/* Destination Tags */}
             <div className="space-y-2.5 pt-2">
-              <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-[#2563EB]" />
-                <span>{isIt ? 'Destinazioni & Nazioni esplorate' : 'Explored Cities & Destinations'}</span>
+              <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-[#2563EB]" />
+                  <span>{isIt ? 'Città & Destinazioni visitate' : 'Visited Cities & Destinations'}</span>
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono">({travelMarkers.length} mete)</span>
               </p>
 
-              <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-1">
+              <div className="flex flex-wrap gap-1.5 max-h-44 overflow-y-auto pr-1">
                 {travelMarkers.map((m) => (
                   <button
                     key={m.label}
@@ -156,23 +220,27 @@ export const TravelGlobe: React.FC = () => {
 
             <div className="flex items-center gap-2 pt-1 text-xs font-mono text-slate-500">
               <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-ping" />
-              <span>{isIt ? 'Trascina per ruotare ed esplorare il globo 3D' : 'Drag to rotate & explore the 3D globe'}</span>
+              <span>{isIt ? 'Trascina per ruotare o usa la rotella del mouse per zoomare' : 'Drag to rotate or scroll to zoom'}</span>
             </div>
           </div>
 
-          {/* Right Column: Centered 3D Globe */}
-          <div className="lg:col-span-7 h-[420px] sm:h-[480px] md:h-[500px] w-full relative flex items-center justify-center">
+          {/* Right Column: Centered 3D Globe with Staggered 3D Pins */}
+          <div className="lg:col-span-7 h-[440px] sm:h-[490px] md:h-[520px] w-full relative flex items-center justify-center">
             <Globe3D
               className="w-full h-full"
               markers={travelMarkers}
+              activeMarkerLabel={activeCity}
               config={{
                 radius: 68,
-                atmosphereColor: '#60a5fa',
+                atmosphereColor: '#38bdf8',
                 bumpScale: 3,
-                autoRotateSpeed: 0.35,
+                autoRotateSpeed: 0.3,
                 showAtmosphere: true,
               }}
               onMarkerHover={(m) => {
+                if (m?.label) setActiveCity(m.label);
+              }}
+              onMarkerClick={(m) => {
                 if (m?.label) setActiveCity(m.label);
               }}
             />

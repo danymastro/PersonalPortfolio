@@ -8,6 +8,7 @@ export interface GlobeMarker {
   src?: string;
   label?: string;
   size?: number;
+  stemHeight?: number;
 }
 
 export interface Globe3DConfig {
@@ -25,6 +26,7 @@ interface Globe3DProps {
   markers?: GlobeMarker[];
   config?: Globe3DConfig;
   className?: string;
+  activeMarkerLabel?: string | null;
   onMarkerClick?: (marker: GlobeMarker) => void;
   onMarkerHover?: (marker: GlobeMarker | null) => void;
 }
@@ -47,6 +49,7 @@ export function Globe3D({
   markers = [],
   config = {},
   className = "",
+  activeMarkerLabel = null,
   onMarkerClick,
   onMarkerHover,
 }: Globe3DProps) {
@@ -92,18 +95,19 @@ export function Globe3D({
 
     // Globe Group
     const globeGroup = new THREE.Group();
-    globeGroup.rotation.x = 0.25;
-    globeGroup.rotation.y = -0.35;
+    // Tilt slightly so Europe/Italy and Northern Europe face the user
+    globeGroup.rotation.x = 0.3;
+    globeGroup.rotation.y = -0.3;
     scene.add(globeGroup);
 
-    // Globe Mesh
+    // Globe Mesh with richer, slightly darker contrast
     const sphereGeometry = new THREE.SphereGeometry(radius, 64, 64);
     const textureLoader = new THREE.TextureLoader();
 
     const globeMaterial = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.5,
-      metalness: 0.05,
+      color: 0xcccccc, // Slightly deeper tone as requested
+      roughness: 0.65,
+      metalness: 0.12,
     });
 
     textureLoader.load(
@@ -115,7 +119,6 @@ export function Globe3D({
       },
       undefined,
       () => {
-        // Fallback to unpkg CDN if local file has issue
         textureLoader.load(
           "https://unpkg.com/three-globe@2.31.0/example/img/earth-day.jpg",
           (tex2) => {
@@ -131,7 +134,7 @@ export function Globe3D({
       bumpMapUrl,
       (bump) => {
         globeMaterial.bumpMap = bump;
-        globeMaterial.bumpScale = bumpScale * 0.03;
+        globeMaterial.bumpScale = bumpScale * 0.035;
         globeMaterial.needsUpdate = true;
       },
       undefined,
@@ -159,8 +162,8 @@ export function Globe3D({
           varying vec3 vNormal;
           varying vec3 vPosition;
           void main() {
-            float intensity = pow(0.65 - dot(vNormal, vec3(0, 0, 1.0)), 2.0);
-            gl_FragColor = vec4(atmosphereColor, intensity * 0.5);
+            float intensity = pow(0.65 - dot(vNormal, vec3(0, 0, 1.0)), 2.2);
+            gl_FragColor = vec4(atmosphereColor, intensity * 0.45);
           }
         `,
         uniforms: {
@@ -176,27 +179,28 @@ export function Globe3D({
       scene.add(atmosphere);
     }
 
-    // Bright Daylight Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
+    // Balanced Lighting (Clean depth, slightly moody contrast)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.35);
     scene.add(ambientLight);
 
-    const mainSun = new THREE.DirectionalLight(0xffffff, 1.4);
+    const mainSun = new THREE.DirectionalLight(0xffffff, 1.3);
     mainSun.position.set(200, 150, 300);
     scene.add(mainSun);
 
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    const fillLight = new THREE.DirectionalLight(0x7dd3fc, 0.6);
     fillLight.position.set(-200, -100, -200);
     scene.add(fillLight);
 
-    // Marker Meshes
+    // Marker Meshes with staggered stem heights to avoid European overlaps
     const markerMeshes: {
       topMesh: THREE.Object3D;
       marker: GlobeMarker;
     }[] = [];
 
     markers.forEach((m) => {
+      const heightMult = m.stemHeight || 1.22;
       const surfacePos = latLngToVector3(m.lat, m.lng, radius * 1.001);
-      const topPos = latLngToVector3(m.lat, m.lng, radius * 1.25);
+      const topPos = latLngToVector3(m.lat, m.lng, radius * heightMult);
       const lineHeight = topPos.distanceTo(surfacePos);
 
       // Pin Stem
@@ -207,7 +211,7 @@ export function Globe3D({
         direction
       );
 
-      const stemGeom = new THREE.CylinderGeometry(0.35, 0.35, lineHeight, 8);
+      const stemGeom = new THREE.CylinderGeometry(0.3, 0.3, lineHeight, 8);
       const stemMat = new THREE.MeshBasicMaterial({
         color: 0x334155,
         transparent: true,
@@ -218,8 +222,8 @@ export function Globe3D({
       stemMesh.quaternion.copy(quaternion);
       globeGroup.add(stemMesh);
 
-      // Pin Red Point
-      const coneGeom = new THREE.ConeGeometry(1.4, 3, 8);
+      // Pin Surface Point
+      const coneGeom = new THREE.ConeGeometry(1.2, 2.8, 8);
       const coneMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
       const coneMesh = new THREE.Mesh(coneGeom, coneMat);
       coneMesh.position.copy(surfacePos);
@@ -267,6 +271,13 @@ export function Globe3D({
       isDragging = false;
     };
 
+    // Zoom on wheel (allows user to inspect dense regions)
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      camera.position.z += e.deltaY * 0.15;
+      camera.position.z = Math.max(160, Math.min(300, camera.position.z));
+    };
+
     container.addEventListener("mousedown", onPointerDown);
     window.addEventListener("mousemove", onPointerMove);
     window.addEventListener("mouseup", onPointerUp);
@@ -274,6 +285,7 @@ export function Globe3D({
     container.addEventListener("touchstart", onPointerDown, { passive: true });
     window.addEventListener("touchmove", onPointerMove, { passive: true });
     window.addEventListener("touchend", onPointerUp);
+    container.addEventListener("wheel", onWheel, { passive: false });
 
     // Resize Handler
     const onResize = () => {
@@ -306,7 +318,7 @@ export function Globe3D({
 
         const cameraDir = camera.position.clone().normalize();
         const markerDir = worldPos.clone().normalize();
-        const isVisible = markerDir.dot(cameraDir) > 0.08;
+        const isVisible = markerDir.dot(cameraDir) > 0.05;
 
         const screenPos = worldPos.clone().project(camera);
         const screenX = ((screenPos.x + 1) * width) / 2;
@@ -335,6 +347,7 @@ export function Globe3D({
       container.removeEventListener("touchstart", onPointerDown);
       window.removeEventListener("touchmove", onPointerMove);
       window.removeEventListener("touchend", onPointerUp);
+      container.removeEventListener("wheel", onWheel);
       window.removeEventListener("resize", onResize);
       renderer.dispose();
     };
@@ -355,11 +368,15 @@ export function Globe3D({
         if (!visible) return null;
 
         const isHovered = hoveredMarker?.label === marker.label;
+        const isActive = activeMarkerLabel === marker.label;
+        const isPromoted = isHovered || isActive;
 
         return (
           <div
             key={idx}
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-transform duration-150 z-20 pointer-events-auto"
+            className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-150 pointer-events-auto ${
+              isPromoted ? "z-40 scale-110" : "z-20"
+            }`}
             style={{ left: `${screenX}px`, top: `${screenY}px` }}
             onMouseEnter={() => {
               setHoveredMarker(marker);
@@ -372,23 +389,23 @@ export function Globe3D({
             onClick={() => onMarkerClick?.(marker)}
           >
             <div
-              className={`flex items-center gap-1.5 p-1 pr-2.5 rounded-full border-2 border-black text-xs font-mono font-bold transition-all cursor-pointer neo-shadow-sm ${
-                isHovered
-                  ? "bg-[#D0FF71] text-black scale-125 shadow-[0_0_15px_rgba(208,255,113,0.8)]"
-                  : "bg-white text-slate-900 hover:bg-[#FDE047] hover:scale-110"
+              className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border-2 border-black text-[11px] font-mono font-bold transition-all cursor-pointer neo-shadow-sm ${
+                isPromoted
+                  ? "bg-[#D0FF71] text-black shadow-[0_0_15px_rgba(208,255,113,0.9)] scale-110"
+                  : "bg-white/95 text-slate-900 hover:bg-[#FDE047]"
               }`}
             >
               {marker.src ? (
                 <img
                   src={marker.src}
                   alt={marker.label || "Marker"}
-                  className="w-5 h-5 rounded-full object-cover border border-black/40 shrink-0"
+                  className="w-4 h-4 rounded-full object-cover border border-black/50 shrink-0"
                 />
               ) : (
-                <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB] animate-ping" />
+                <span className="w-2 h-2 rounded-full bg-[#2563EB] shrink-0" />
               )}
               {marker.label && (
-                <span className="whitespace-nowrap text-[11px] font-bold">
+                <span className="whitespace-nowrap font-bold">
                   {marker.label}
                 </span>
               )}
