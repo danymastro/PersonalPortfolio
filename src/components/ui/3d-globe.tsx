@@ -1,24 +1,31 @@
-import React, { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
-import { cn } from "@/lib/utils";
+import React, { useEffect, useRef, useState } from 'react';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import ThreeGlobe from 'three-globe';
+import { cn } from '@/lib/utils';
 
 export interface GlobeMarker {
   lat: number;
   lng: number;
-  src?: string;
   flag?: string;
+  src?: string;
   label?: string;
   stemHeight?: number;
 }
 
 export interface Globe3DConfig {
   radius?: number;
-  textureUrl?: string;
-  bumpMapUrl?: string;
-  showAtmosphere?: boolean;
+  pointLight?: string;
   atmosphereColor?: string;
+  showAtmosphere?: boolean;
+  atmosphereAltitude?: number;
   atmosphereIntensity?: number;
+  polygonColor?: string;
+  emissive?: string;
+  emissiveIntensity?: number;
+  shininess?: number;
   bumpScale?: number;
+  autoRotate?: boolean;
   autoRotateSpeed?: number;
 }
 
@@ -30,9 +37,6 @@ interface Globe3DProps {
   onMarkerClick?: (marker: GlobeMarker) => void;
   onMarkerHover?: (marker: GlobeMarker | null) => void;
 }
-
-const DEFAULT_EARTH_TEXTURE = "/textures/earth-day.jpg";
-const DEFAULT_BUMP_TEXTURE = "/textures/earth-topology.png";
 
 function latLngToVector3(lat: number, lng: number, radius: number): THREE.Vector3 {
   const phi = (90 - lat) * (Math.PI / 180);
@@ -59,14 +63,16 @@ export function Globe3D({
   const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
 
   const {
-    radius = 110,
-    textureUrl = DEFAULT_EARTH_TEXTURE,
-    bumpMapUrl = DEFAULT_BUMP_TEXTURE,
-    showAtmosphere = true,
+    pointLight = "#38bdf8",
     atmosphereColor = "#38bdf8",
-    atmosphereIntensity = 10,
-    bumpScale = 3,
-    autoRotateSpeed = 0.22,
+    showAtmosphere = true,
+    atmosphereAltitude = 0.12,
+    polygonColor = "rgba(255, 255, 255, 0.75)",
+    emissive = "#062056",
+    emissiveIntensity = 0.15,
+    shininess = 0.9,
+    autoRotate = true,
+    autoRotateSpeed = 0.35,
   } = config;
 
   useEffect(() => {
@@ -76,13 +82,13 @@ export function Globe3D({
     let width = container.clientWidth || 600;
     let height = container.clientHeight || 600;
 
-    // Scene & Camera (Locked zoom distance)
+    // Scene & Camera
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1500);
-    camera.position.set(0, 0, 215);
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 2000);
+    camera.position.set(0, 0, 275);
     camera.lookAt(0, 0, 0);
 
-    // Renderer with 100% transparent background
+    // Renderer (100% transparent)
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasRef.current,
       alpha: true,
@@ -93,193 +99,119 @@ export function Globe3D({
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
 
-    // Globe Group: Offset to the right (3/4 visible in card) & Europe front-center
+    // Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enableZoom = false; // Lock zoom as requested
+    controls.autoRotate = autoRotate;
+    controls.autoRotateSpeed = autoRotateSpeed;
+    controls.minPolarAngle = Math.PI / 3.5;
+    controls.maxPolarAngle = Math.PI - Math.PI / 3;
+
+    // GitHub Style ThreeGlobe instance
+    const globe = new ThreeGlobe()
+      .showGlobe(true)
+      .showAtmosphere(showAtmosphere)
+      .atmosphereColor(atmosphereColor)
+      .atmosphereAltitude(atmosphereAltitude);
+
+    // Globe Material (GitHub dark navy sphere with glossy dotted hex polygons)
+    const globeMaterial = globe.globeMaterial() as THREE.MeshPhongMaterial;
+    globeMaterial.color = new THREE.Color(0x050d1a);
+    globeMaterial.emissive = new THREE.Color(emissive);
+    globeMaterial.emissiveIntensity = emissiveIntensity;
+    globeMaterial.shininess = shininess;
+
+    // Load GeoJSON Countries Data for Hexagon Polygons
+    fetch('/data/globe.json')
+      .then((res) => res.json())
+      .then((countriesData) => {
+        globe
+          .hexPolygonsData(countriesData.features)
+          .hexPolygonResolution(3)
+          .hexPolygonMargin(0.7)
+          .hexPolygonUseDots(true)
+          .hexPolygonColor(() => polygonColor);
+      })
+      .catch((err) => console.warn('Could not load globe.json:', err));
+
+    // Home Base (Campobasso / Italy)
+    const homeBase = { lat: 41.56, lng: 14.66 };
+
+    // Flight Arcs connecting Home Base to all visited destinations
+    const arcsData = markers
+      .filter((m) => !(Math.abs(m.lat - homeBase.lat) < 1 && Math.abs(m.lng - homeBase.lng) < 1))
+      .map((m, idx) => ({
+        startLat: homeBase.lat,
+        startLng: homeBase.lng,
+        endLat: m.lat,
+        endLng: m.lng,
+        color: idx % 2 === 0 ? ['#2563EB', '#38BDF8', '#D0FF71'] : ['#38BDF8', '#D0FF71', '#FDE047'],
+      }));
+
+    globe
+      .arcsData(arcsData)
+      .arcColor('color')
+      .arcAltitudeAutoScale(0.28)
+      .arcStroke(0.6)
+      .arcDashLength(0.85)
+      .arcDashGap(3)
+      .arcDashInitialGap((e: any) => (e.startLat + e.endLat) % 5)
+      .arcDashAnimateTime(1200);
+
+    // Pulsing Rings at destinations
+    const ringsData = markers.map((m) => ({
+      lat: m.lat,
+      lng: m.lng,
+      color: '#38bdf8',
+      maxR: 4.5,
+      propagationSpeed: 2.5,
+      repeatPeriod: 900,
+    }));
+
+    globe
+      .ringsData(ringsData)
+      .ringColor('color')
+      .ringMaxRadius('maxR')
+      .ringPropagationSpeed('propagationSpeed')
+      .ringRepeatPeriod('repeatPeriod');
+
+    // Group wrapper offset 3/4 to the right & initial Europe front-facing orientation
     const globeGroup = new THREE.Group();
-    globeGroup.position.set(28, 0, 0);
-    globeGroup.rotation.x = 0.50;
-    globeGroup.rotation.y = -3.22;
+    globeGroup.position.set(32, 0, 0); // 3/4 visible on right
+    globeGroup.rotation.x = 0.45;
+    globeGroup.rotation.y = -3.22; // Europe front-center
+    globeGroup.add(globe);
     scene.add(globeGroup);
 
-    // Globe Mesh
-    const sphereGeometry = new THREE.SphereGeometry(radius, 64, 64);
-    const textureLoader = new THREE.TextureLoader();
-
-    const globeMaterial = new THREE.MeshStandardMaterial({
-      color: 0xdddddd,
-      roughness: 0.6,
-      metalness: 0.08,
-    });
-
-    textureLoader.load(
-      textureUrl,
-      (tex) => {
-        tex.colorSpace = THREE.SRGBColorSpace;
-        globeMaterial.map = tex;
-        globeMaterial.needsUpdate = true;
-      },
-      undefined,
-      () => {
-        textureLoader.load(
-          "https://unpkg.com/three-globe@2.31.0/example/img/earth-day.jpg",
-          (tex2) => {
-            tex2.colorSpace = THREE.SRGBColorSpace;
-            globeMaterial.map = tex2;
-            globeMaterial.needsUpdate = true;
-          }
-        );
-      }
-    );
-
-    textureLoader.load(
-      bumpMapUrl,
-      (bump) => {
-        globeMaterial.bumpMap = bump;
-        globeMaterial.bumpScale = bumpScale * 0.035;
-        globeMaterial.needsUpdate = true;
-      },
-      undefined,
-      () => {}
-    );
-
-    const globe = new THREE.Mesh(sphereGeometry, globeMaterial);
-    globeGroup.add(globe);
-
-    // Concentric Atmosphere attached to globeGroup (eliminating any box/offset artifact)
-    if (showAtmosphere) {
-      const atmosphereGeometry = new THREE.SphereGeometry(radius * 1.025, 64, 64);
-      const atmosphereMaterial = new THREE.ShaderMaterial({
-        vertexShader: `
-          varying vec3 vNormal;
-          varying vec3 vPosition;
-          void main() {
-            vNormal = normalize(normalMatrix * normal);
-            vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform vec3 atmosphereColor;
-          uniform float intensity;
-          varying vec3 vNormal;
-          varying vec3 vPosition;
-          void main() {
-            float fresnel = pow(1.0 - abs(dot(vNormal, normalize(-vPosition))), 2.5);
-            gl_FragColor = vec4(atmosphereColor, fresnel * (intensity / 15.0));
-          }
-        `,
-        uniforms: {
-          atmosphereColor: { value: new THREE.Color(atmosphereColor) },
-          intensity: { value: atmosphereIntensity },
-        },
-        side: THREE.BackSide,
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-      });
-
-      const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
-      globeGroup.add(atmosphere);
-    }
-
-    // Balanced Bright Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.35);
-    scene.add(ambientLight);
-
-    const mainSun = new THREE.DirectionalLight(0xffffff, 1.3);
-    mainSun.position.set(200, 150, 300);
-    scene.add(mainSun);
-
-    const fillLight = new THREE.DirectionalLight(0x93c5fd, 0.6);
-    fillLight.position.set(-200, -100, -200);
-    scene.add(fillLight);
-
-    // Marker Meshes
-    const markerMeshes: {
-      topMesh: THREE.Object3D;
-      marker: GlobeMarker;
-    }[] = [];
+    // Top Pin Anchors for 2D HTML markers
+    const markerMeshes: { topMesh: THREE.Object3D; marker: GlobeMarker }[] = [];
+    const radius = 100; // Standard ThreeGlobe radius
 
     markers.forEach((m) => {
-      const heightMult = m.stemHeight || 1.08;
-      const surfacePos = latLngToVector3(m.lat, m.lng, radius * 1.001);
-      const topPos = latLngToVector3(m.lat, m.lng, radius * heightMult);
-      const lineHeight = topPos.distanceTo(surfacePos);
-
-      // Pin Stem
-      const center = surfacePos.clone().lerp(topPos, 0.5);
-      const direction = topPos.clone().sub(surfacePos).normalize();
-      const quaternion = new THREE.Quaternion().setFromUnitVectors(
-        new THREE.Vector3(0, 1, 0),
-        direction
-      );
-
-      const stemGeom = new THREE.CylinderGeometry(0.3, 0.3, lineHeight, 8);
-      const stemMat = new THREE.MeshBasicMaterial({
-        color: 0x334155,
-        transparent: true,
-        opacity: 0.8,
-      });
-      const stemMesh = new THREE.Mesh(stemGeom, stemMat);
-      stemMesh.position.copy(center);
-      stemMesh.quaternion.copy(quaternion);
-      globeGroup.add(stemMesh);
-
-      // Pin Surface Point
-      const coneGeom = new THREE.ConeGeometry(1.2, 2.8, 8);
-      const coneMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
-      const coneMesh = new THREE.Mesh(coneGeom, coneMat);
-      coneMesh.position.copy(surfacePos);
-      coneMesh.quaternion.copy(quaternion);
-      globeGroup.add(coneMesh);
-
-      // Top anchor
+      const topPos = latLngToVector3(m.lat, m.lng, radius * (m.stemHeight || 1.12));
       const topAnchor = new THREE.Object3D();
       topAnchor.position.copy(topPos);
       globeGroup.add(topAnchor);
-
       markerMeshes.push({ topMesh: topAnchor, marker: m });
     });
 
-    // Mouse & Touch Drag Controls
-    let isDragging = false;
-    let previousPos = { x: 0, y: 0 };
-    let reqId: number;
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    scene.add(ambientLight);
 
-    const onPointerDown = (e: MouseEvent | TouchEvent) => {
-      isDragging = true;
-      const x = "touches" in e ? e.touches[0].clientX : e.clientX;
-      const y = "touches" in e ? e.touches[0].clientY : e.clientY;
-      previousPos = { x, y };
-    };
+    const dLight1 = new THREE.DirectionalLight(0xffffff, 1.2);
+    dLight1.position.set(-400, 200, 400);
+    scene.add(dLight1);
 
-    const onPointerMove = (e: MouseEvent | TouchEvent) => {
-      if (!isDragging) return;
-      const x = "touches" in e ? e.touches[0].clientX : e.clientX;
-      const y = "touches" in e ? e.touches[0].clientY : e.clientY;
+    const dLight2 = new THREE.DirectionalLight(new THREE.Color(pointLight), 1.0);
+    dLight2.position.set(200, 500, 200);
+    scene.add(dLight2);
 
-      const deltaX = x - previousPos.x;
-      const deltaY = y - previousPos.y;
-
-      globeGroup.rotation.y += deltaX * 0.005;
-      globeGroup.rotation.x += deltaY * 0.005;
-
-      // Restrict vertical tilt
-      globeGroup.rotation.x = Math.max(-0.6, Math.min(0.8, globeGroup.rotation.x));
-
-      previousPos = { x, y };
-    };
-
-    const onPointerUp = () => {
-      isDragging = false;
-    };
-
-    container.addEventListener("mousedown", onPointerDown);
-    window.addEventListener("mousemove", onPointerMove);
-    window.addEventListener("mouseup", onPointerUp);
-
-    container.addEventListener("touchstart", onPointerDown, { passive: true });
-    window.addEventListener("touchmove", onPointerMove, { passive: true });
-    window.addEventListener("touchend", onPointerUp);
+    const dLight3 = new THREE.DirectionalLight(0x38bdf8, 0.8);
+    dLight3.position.set(-200, -500, -200);
+    scene.add(dLight3);
 
     // Resize Handler
     const onResize = () => {
@@ -292,16 +224,13 @@ export function Globe3D({
     };
     window.addEventListener("resize", onResize);
 
-    // Animation Loop with Real-Time Matrix World Sync
+    // Animation Loop
+    let reqId: number;
     const animate = () => {
-      if (!isDragging && autoRotateSpeed > 0) {
-        globeGroup.rotation.y += autoRotateSpeed * 0.004;
-      }
-
-      // CRITICAL: Update world matrix so anchors follow rotation exactly
+      controls.update();
       globeGroup.updateMatrixWorld(true);
 
-      // Direct DOM transform sync for instant 60fps tracking without state lag
+      // Real-time 60fps DOM transform sync for HTML tags
       markerMeshes.forEach(({ topMesh }, idx) => {
         const el = tagRefs.current[idx];
         if (!el) return;
@@ -336,16 +265,11 @@ export function Globe3D({
 
     return () => {
       cancelAnimationFrame(reqId);
-      container.removeEventListener("mousedown", onPointerDown);
-      window.removeEventListener("mousemove", onPointerMove);
-      window.removeEventListener("mouseup", onPointerUp);
-      container.removeEventListener("touchstart", onPointerDown);
-      window.removeEventListener("touchmove", onPointerMove);
-      window.removeEventListener("touchend", onPointerUp);
       window.removeEventListener("resize", onResize);
+      controls.dispose();
       renderer.dispose();
     };
-  }, [markers, textureUrl, bumpMapUrl, atmosphereColor, atmosphereIntensity, bumpScale, autoRotateSpeed, radius, showAtmosphere]);
+  }, [markers, pointLight, atmosphereColor, showAtmosphere, atmosphereAltitude, polygonColor, emissive, emissiveIntensity, shininess, autoRotate, autoRotateSpeed]);
 
   return (
     <div
@@ -357,7 +281,7 @@ export function Globe3D({
     >
       <canvas ref={canvasRef} className="w-full h-full block bg-transparent" />
 
-      {/* Floating 2D Marker Overlays synchronized in real-time */}
+      {/* Floating 2D Marker Overlays */}
       {markers.map((marker, idx) => {
         const isHovered = hoveredLabel === marker.label;
         const isActive = activeMarkerLabel === marker.label;
