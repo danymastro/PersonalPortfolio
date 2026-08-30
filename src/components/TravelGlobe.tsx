@@ -86,84 +86,103 @@ export const TravelGlobe: React.FC = () => {
   return (
     <div className="relative group w-full my-8">
       {/* Offset Neo-Brutalist shadow */}
-      <div className="absolute inset-0 bg-[#38BDF8] rounded-3xl border-2 border-black rotate-1 -z-10 group-hover:rotate-2 transition-transform duration-300" />
+      <div className="absolute inset-0 bg-[#D0FF71] rounded-3xl border-2 border-black rotate-1 -z-10 group-hover:rotate-2 transition-transform duration-300" />
 
-      <div className="bg-neutral-900 border-2 border-black rounded-3xl p-6 sm:p-10 text-white neo-shadow overflow-hidden relative min-h-[560px] sm:min-h-[580px] flex flex-col justify-between">
-        {/* Glowing ambient light flare */}
-        <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#38BDF8] rounded-full blur-3xl opacity-20 pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-[#D0FF71] rounded-full blur-3xl opacity-15 pointer-events-none" />
+      <div className="bg-[#FFFDF5] border-2 border-black rounded-3xl p-6 sm:p-10 text-slate-900 neo-shadow overflow-hidden relative">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+          {/* Left Column: Text Content & City Chips */}
+          <div className="lg:col-span-5 space-y-6">
+            <div className="space-y-3">
+              <span className="px-3 py-1 rounded-full bg-[#38BDF8]/20 border-2 border-black text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1.5 neo-shadow-sm text-slate-900">
+                <Compass className="w-3.5 h-3.5 animate-spin text-[#2563EB]" style={{ animationDuration: '10s' }} />
+                <span>{isIt ? 'Oltre il codice · Passione Viaggi' : 'Beyond Code · Travel & Explore'}</span>
+              </span>
 
-        {/* Content Header */}
-        <div className="relative z-20 space-y-4 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#38BDF8]/20 border border-[#38BDF8]/50 rounded-full text-[10px] sm:text-xs font-mono font-bold text-[#38BDF8] uppercase tracking-wider">
-            <Compass className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '10s' }} />
-            <span>{isIt ? 'Oltre il codice · Passione Viaggi' : 'Beyond Code · Travel & Explore'}</span>
+              <h3 className="font-syne font-extrabold text-2xl sm:text-3xl lg:text-4xl text-slate-900 tracking-tight leading-tight">
+                {isIt ? (
+                  <>
+                    All over the world. <br />
+                    <span className="text-[#2563EB] underline decoration-4 underline-offset-6">
+                      Esplorare il mondo
+                    </span>{' '}
+                    per aprire la mente.
+                  </>
+                ) : (
+                  <>
+                    All over the world. <br />
+                    <span className="text-[#2563EB] underline decoration-4 underline-offset-6">
+                      Exploring the globe
+                    </span>{' '}
+                    to broaden perspectives.
+                  </>
+                )}
+              </h3>
+            </div>
+
+            <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
+              {isIt
+                ? 'Quando non sviluppo software, viaggiare è la mia più grande passione. Visitare nuove nazioni, culture e città allarga gli orizzonti e mi insegna a guardare ogni problema da prospettive diverse — una curiosità che poi trasferisco in ogni prodotto digitale che realizzo.'
+                : 'Outside of coding, traveling is my biggest passion. Discovering new cultures and cities broadens my horizons and teaches me to approach problems from diverse angles — a curiosity I pour directly into every digital product I build.'}
+            </p>
+
+            {/* Destination Tags */}
+            <div className="space-y-2.5 pt-2">
+              <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-[#2563EB]" />
+                <span>{isIt ? 'Destinazioni & Nazioni esplorate' : 'Explored Cities & Destinations'}</span>
+              </p>
+
+              <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-1">
+                {travelMarkers.map((m) => (
+                  <button
+                    key={m.label}
+                    type="button"
+                    onClick={() => {
+                      const lbl = m.label || null;
+                      setActiveCity(activeCity === lbl ? null : lbl);
+                    }}
+                    className={`px-2.5 py-1 rounded-xl border-2 border-black text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      activeCity === m.label
+                        ? 'bg-[#D0FF71] text-black neo-shadow-sm scale-105'
+                        : 'bg-white text-slate-800 hover:bg-[#FDE047] neo-shadow-sm'
+                    }`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
+                    <span>{m.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-1 text-xs font-mono text-slate-500">
+              <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-ping" />
+              <span>{isIt ? 'Trascina per ruotare ed esplorare il globo 3D' : 'Drag to rotate & explore the 3D globe'}</span>
+            </div>
           </div>
 
-          <h3 className="font-syne font-extrabold text-2xl sm:text-4xl text-white tracking-tight leading-tight">
-            {isIt ? (
-              <>
-                All over the world. <br />
-                <span className="text-[#D0FF71]">Esplorare il mondo per aprire la mente.</span>
-              </>
-            ) : (
-              <>
-                All over the world. <br />
-                <span className="text-[#D0FF71]">Exploring the globe to broaden perspectives.</span>
-              </>
-            )}
-          </h3>
+          {/* Right Column: Centered 3D Globe */}
+          <div className="lg:col-span-7 h-[420px] sm:h-[480px] md:h-[500px] w-full relative flex items-center justify-center">
+            <Globe3D
+              className="w-full h-full"
+              markers={travelMarkers}
+              config={{
+                radius: 105,
+                atmosphereColor: '#38bdf8',
+                atmosphereIntensity: 18,
+                bumpScale: 5,
+                autoRotateSpeed: 0.35,
+                showAtmosphere: true,
+              }}
+              onMarkerHover={(m) => {
+                if (m?.label) setActiveCity(m.label);
+              }}
+            />
 
-          <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-normal">
-            {isIt
-              ? 'Quando non sviluppo software, viaggiare è la mia più grande passione. Visitare nuove nazioni, culture e città allarga gli orizzonti e mi insegna a guardare ogni problema da prospettive diverse — una curiosità che poi trasferisco in ogni prodotto digitale che realizzo.'
-              : 'Outside of coding, traveling is my biggest passion. Discovering new cultures and cities broadens my horizons and teaches me to approach problems from diverse angles — a curiosity I pour directly into every digital product I build.'}
-          </p>
-
-          {/* Destination Tags */}
-          <div className="flex flex-wrap gap-2 pt-2">
-            {travelMarkers.map((m) => (
-              <button
-                key={m.label}
-                type="button"
-                onClick={() => {
-                  const lbl = m.label || null;
-                  setActiveCity(activeCity === lbl ? null : lbl);
-                }}
-                className={`px-2.5 py-1 rounded-lg border text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  activeCity === m.label
-                    ? 'bg-[#D0FF71] text-black border-black neo-shadow-sm scale-105'
-                    : 'bg-white/10 border-white/15 text-white/90 hover:bg-white/20'
-                }`}
-              >
-                <MapPin className="w-3 h-3 text-[#D0FF71]" />
-                <span>{m.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 3D Globe - Positioned with realistic NASA Blue Marble texture and floating avatar stems */}
-        <div className="relative w-full h-[400px] sm:h-[450px] mt-4 flex items-center justify-center overflow-hidden">
-          <Globe3D
-            className="absolute -bottom-80 sm:-bottom-72 left-0 right-0 h-[650px] sm:h-[720px]"
-            markers={travelMarkers}
-            config={{
-              atmosphereColor: '#4da6ff',
-              atmosphereIntensity: 20,
-              bumpScale: 5,
-              autoRotateSpeed: 0.3,
-              showAtmosphere: true,
-            }}
-            onMarkerHover={(m) => {
-              if (m?.label) setActiveCity(m.label);
-            }}
-          />
-
-          {/* Interactive Overlay badge */}
-          <div className="absolute bottom-3 right-3 px-3 py-1 bg-black/80 backdrop-blur-md rounded-full border border-white/20 text-[10px] font-mono font-bold text-white/90 flex items-center gap-1.5 pointer-events-none z-30">
-            <Plane className="w-3 h-3 text-[#38BDF8]" />
-            <span>Base: Campobasso, IT (41.56° N, 14.66° E)</span>
+            {/* Interactive Overlay badge */}
+            <div className="absolute bottom-3 right-3 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full border-2 border-black text-[10px] font-mono font-bold text-slate-900 flex items-center gap-1.5 pointer-events-none z-30 neo-shadow-sm">
+              <Plane className="w-3 h-3 text-[#2563EB]" />
+              <span>Base: Campobasso, IT (41.56° N, 14.66° E)</span>
+            </div>
           </div>
         </div>
       </div>

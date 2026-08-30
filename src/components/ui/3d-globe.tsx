@@ -93,7 +93,7 @@ export function Globe3D({
     // Scene & Camera
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 2000);
-    camera.position.set(0, 40, radius * 2.8);
+    camera.position.set(0, 0, radius * 2.45);
     camera.lookAt(0, 0, 0);
 
     // Renderer
@@ -108,19 +108,20 @@ export function Globe3D({
 
     // Globe Group
     const globeGroup = new THREE.Group();
-    // Tilt slightly forward so Europe/US/Asia look great
-    globeGroup.rotation.x = 0.35;
+    // Tilt so Europe and destinations face nicely
+    globeGroup.rotation.x = 0.2;
+    globeGroup.rotation.y = -0.3;
     scene.add(globeGroup);
 
     // Globe Mesh
     const sphereGeometry = new THREE.SphereGeometry(radius, 64, 64);
     const textureLoader = new THREE.TextureLoader();
 
-    // Fallback base material while loading
+    // Base material while loading
     const globeMaterial = new THREE.MeshStandardMaterial({
-      color: 0x112244,
-      roughness: 0.8,
-      metalness: 0.1,
+      color: 0x1e3a8a,
+      roughness: 0.6,
+      metalness: 0.05,
     });
 
     textureLoader.load(
@@ -150,7 +151,7 @@ export function Globe3D({
 
     // Atmosphere Glow Mesh
     if (showAtmosphere) {
-      const atmosphereGeometry = new THREE.SphereGeometry(radius * 1.14, 64, 64);
+      const atmosphereGeometry = new THREE.SphereGeometry(radius * 1.12, 64, 64);
       const atmosphereMaterial = new THREE.ShaderMaterial({
         vertexShader: `
           varying vec3 vNormal;
@@ -167,7 +168,7 @@ export function Globe3D({
           varying vec3 vNormal;
           varying vec3 vPosition;
           void main() {
-            float fresnel = pow(1.0 - abs(dot(vNormal, normalize(-vPosition))), 2.2);
+            float fresnel = pow(1.0 - abs(dot(vNormal, normalize(-vPosition))), 2.0);
             gl_FragColor = vec4(atmosphereColor, fresnel * (intensity / 10.0));
           }
         `,
@@ -185,17 +186,17 @@ export function Globe3D({
       scene.add(atmosphere);
     }
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+    // Lighting (Bright, vibrant sunlight)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.1);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xffffff, 1.3);
-    sunLight.position.set(300, 200, 300);
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.6);
+    sunLight.position.set(300, 200, 400);
     scene.add(sunLight);
 
-    const blueLight = new THREE.DirectionalLight(0x38bdf8, 0.6);
-    blueLight.position.set(-200, -100, -200);
-    scene.add(blueLight);
+    const fillLight = new THREE.DirectionalLight(0x93c5fd, 0.7);
+    fillLight.position.set(-300, -100, -200);
+    scene.add(fillLight);
 
     // Marker Meshes (Stems + Cones + Top Pin points)
     const markerMeshes: {
@@ -383,17 +384,17 @@ export function Globe3D({
             onClick={() => onMarkerClick?.(marker)}
           >
             <div
-              className={`flex items-center gap-1.5 p-1 pr-2.5 rounded-full border border-black/40 text-xs font-mono font-bold shadow-xl transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 p-1 pr-2.5 rounded-full border-2 border-black text-xs font-mono font-bold transition-all cursor-pointer neo-shadow-sm ${
                 isHovered
-                  ? "bg-[#D0FF71] text-black scale-125 shadow-[0_0_20px_rgba(208,255,113,0.9)]"
-                  : "bg-neutral-900/90 text-white backdrop-blur-md hover:bg-neutral-900 hover:scale-110"
+                  ? "bg-[#D0FF71] text-black scale-125 shadow-[0_0_15px_rgba(208,255,113,0.8)]"
+                  : "bg-white text-slate-900 hover:bg-[#FDE047] hover:scale-110"
               }`}
             >
               {marker.src ? (
                 <img
                   src={marker.src}
                   alt={marker.label || "Marker"}
-                  className="w-5 h-5 rounded-full object-cover border border-white/40 shrink-0"
+                  className="w-5 h-5 rounded-full object-cover border border-black/40 shrink-0"
                 />
               ) : (
                 <span className="w-2.5 h-2.5 rounded-full bg-[#D0FF71] animate-ping" />
