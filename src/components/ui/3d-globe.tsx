@@ -385,22 +385,16 @@ export function Globe3D({
             onClick={() => onMarkerClick?.(marker)}
           >
             <div
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border-2 border-black text-xs font-mono font-bold transition-all cursor-pointer neo-shadow-sm ${
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-black flex items-center justify-center transition-all cursor-pointer neo-shadow-sm ${
                 isPromoted
-                  ? "bg-[#D0FF71] text-black scale-110 shadow-[0_0_15px_rgba(208,255,113,0.9)]"
-                  : "bg-white text-slate-900 hover:bg-[#FDE047] hover:scale-105"
+                  ? "bg-[#D0FF71] scale-125 shadow-[0_0_15px_rgba(208,255,113,0.9)]"
+                  : "bg-white hover:bg-[#FDE047] hover:scale-115"
               }`}
+              title={marker.label}
             >
-              {marker.flag ? (
-                <span className="text-sm">{marker.flag}</span>
-              ) : (
-                <span className="w-2 h-2 rounded-full bg-[#2563EB] shrink-0" />
-              )}
-              {marker.label && (
-                <span className="whitespace-nowrap font-bold text-[11px]">
-                  {marker.label}
-                </span>
-              )}
+              <span className="text-base leading-none select-none">
+                {marker.flag || "📍"}
+              </span>
             </div>
           </div>
         );
