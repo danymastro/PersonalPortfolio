@@ -432,13 +432,10 @@ const KeystrokePreview = () => {
 
   useEffect(() => {
     if (lastPressedKey) {
-      // Clear display if space or shift is pressed
       if (
-        lastPressedKey === "Space" ||
         lastPressedKey === "ShiftLeft" ||
         lastPressedKey === "ShiftRight"
       ) {
-        setDisplayKey(null);
         return;
       }
 
@@ -450,35 +447,29 @@ const KeystrokePreview = () => {
   const isPressed = pressedKeys.size > 0;
 
   return (
-    <div className="relative flex h-12 w-full items-center justify-center">
+    <div className="relative flex h-14 w-full items-center justify-center mb-3">
       <AnimatePresence mode="popLayout">
         {displayKey && (
           <motion.div
             key={animationKey}
             layout
-            initial={{ opacity: 0, scale: 0.5, y: 5 }}
+            initial={{ opacity: 0, scale: 0.4, y: 10 }}
             animate={{
               opacity: 1,
-              scale: isPressed ? 0.95 : 1,
+              scale: isPressed ? 1.08 : 1,
               y: 0,
             }}
-            exit={{ opacity: 0, scale: 0.8, y: -5 }}
+            exit={{ opacity: 0, scale: 0.6, y: -10 }}
             transition={{
               type: "spring",
-              stiffness: 500,
-              damping: 30,
-              mass: 0.5,
+              stiffness: 600,
+              damping: 25,
+              mass: 0.4,
             }}
-            className="absolute flex items-center justify-center rounded-lg px-4 py-2 font-mono text-2xl font-black text-neutral-700"
+            className="absolute flex items-center justify-center gap-2 rounded-2xl bg-[#D0FF71] border-2 border-black text-black neo-shadow-sm px-6 py-2.5 font-mono text-xl font-extrabold select-none shadow-[0_0_25px_rgba(208,255,113,0.7)]"
           >
-            <motion.span
-              initial={{ opacity: 0, scale: 1.2, filter: "blur(10px)" }}
-              animate={{ opacity: 0.6, scale: 1, filter: "blur(0px)" }}
-              transition={{ duration: 0.05 }}
-              className="text-2xl"
-            >
-              {displayKey}
-            </motion.span>
+            <span className="text-[11px] font-bold text-black/60 uppercase tracking-widest">LIVE KEY:</span>
+            <span className="text-2xl font-black">{displayKey}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -502,7 +493,7 @@ export const Keyboard = ({
       <div
         ref={containerRef}
         className={cn(
-          "mx-auto w-fit [zoom:1] lg:[zoom:1.3] xl:[zoom:1.45] max-w-full",
+          "mx-auto w-fit [zoom:1.1] lg:[zoom:1.6] xl:[zoom:1.85] 2xl:[zoom:2.0] max-w-full transition-transform",
           className,
         )}
       >
@@ -906,13 +897,14 @@ const ModifierKey = ({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
         className={cn(
-          "flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset] transition-transform duration-75 active:scale-[0.98]",
-          isPressed &&
-            "scale-[0.98] bg-gray-100/80 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,0.5)]",
+          "flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset] transition-all duration-75 active:scale-[0.93] active:translate-y-[1.5px]",
+          isPressed
+            ? "!bg-[#D0FF71] !translate-y-[2px] !scale-[0.92] !shadow-[0px_0px_12px_rgba(208,255,113,0.9),inset_0_2px_4px_rgba(0,0,0,0.3)] ring-2 ring-[#D0FF71]"
+            : "hover:bg-white",
           className,
         )}
       >
-        <div className="flex h-full w-full flex-col items-start justify-between p-1 text-[5px] text-neutral-700">
+        <div className={cn("flex h-full w-full flex-col items-start justify-between p-1 text-[5px] transition-colors duration-75", isPressed ? "!text-black font-extrabold" : "text-neutral-700")}>
           {children}
         </div>
       </button>
