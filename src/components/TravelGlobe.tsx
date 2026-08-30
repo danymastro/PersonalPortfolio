@@ -166,10 +166,9 @@ export const TravelGlobe: React.FC = () => {
               className="w-full h-full"
               markers={travelMarkers}
               config={{
-                radius: 105,
-                atmosphereColor: '#38bdf8',
-                atmosphereIntensity: 18,
-                bumpScale: 5,
+                radius: 68,
+                atmosphereColor: '#60a5fa',
+                bumpScale: 3,
                 autoRotateSpeed: 0.35,
                 showAtmosphere: true,
               }}
