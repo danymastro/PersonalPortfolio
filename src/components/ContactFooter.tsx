@@ -27,38 +27,41 @@ export const ContactFooter: React.FC<FooterProps> = ({ onOpenContact }) => {
           </span>
         </div>
 
-        {/* Massive Interactive Header */}
+        {/* Massive Interactive Header - well proportioned and fully responsive without horizontal overflow */}
         <h2
           onClick={onOpenContact}
-          className="text-[14vw] sm:text-[12vw] md:text-[11vw] leading-[0.9] font-extrabold tracking-tighter font-syne mb-8 hover:text-[#FDE047] transition-colors duration-300 cursor-pointer select-none"
+          className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl leading-[0.95] font-extrabold tracking-tighter font-syne mb-6 sm:mb-8 hover:text-[#FDE047] transition-colors duration-300 cursor-pointer select-none max-w-full break-words"
         >
           {t.footer.letsTalk}
         </h2>
 
-        <p className="max-w-xl text-base sm:text-lg text-gray-400 mb-6 font-medium">
+        <p className="max-w-xl text-sm sm:text-base md:text-lg text-gray-300 mb-4 sm:mb-6 font-medium leading-relaxed px-2">
           {t.footer.description}
         </p>
 
-        <p className="mb-10 text-sm sm:text-base font-mono font-bold text-[#FDE047] tracking-tight">
+        <p className="mb-8 sm:mb-10 text-xs sm:text-sm md:text-base font-mono font-bold text-[#FDE047] tracking-tight">
           {t.footer.prompt}
         </p>
 
-        <button
-          onClick={onOpenContact}
-          className="mb-8 inline-flex items-center gap-2 px-8 py-4 bg-[#FDE047] text-black border-2 border-black font-extrabold text-base sm:text-lg rounded-full hover:bg-white transition-colors"
-        >
-          <span>{t.contactModal.title}</span>
-          <ArrowUpRight className="w-5 h-5" />
-        </button>
+        {/* Action Buttons Group */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 w-full max-w-xl mb-6">
+          <button
+            onClick={onOpenContact}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 sm:py-4 bg-[#FDE047] text-black border-2 border-black font-extrabold text-sm sm:text-base rounded-full hover:bg-white transition-all neo-shadow-sm cursor-pointer shrink-0"
+          >
+            <span>{t.contactModal.title}</span>
+            <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
 
-        {/* Big Email Button */}
-        <a
-          href={`mailto:${personal.email}`}
-          className="inline-flex items-center gap-3 px-8 sm:px-10 py-4 sm:py-5 bg-[#2563EB] text-white font-extrabold text-lg sm:text-xl rounded-full hover:scale-105 hover:bg-[#FDE047] hover:text-black transition-all duration-300 border-2 border-white/20 shadow-2xl active:scale-95"
-        >
-          <span>{personal.email}</span>
-          <Mail className="w-6 h-6" />
-        </a>
+          {/* Big Email Button */}
+          <a
+            href={`mailto:${personal.email}`}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3.5 sm:py-4 bg-[#2563EB] text-white font-extrabold text-xs sm:text-sm md:text-base rounded-full hover:scale-105 hover:bg-[#D0FF71] hover:text-black transition-all duration-300 border-2 border-white/20 neo-shadow-sm active:scale-95 shrink-0"
+          >
+            <span className="truncate">{personal.email}</span>
+            <Mail className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+          </a>
+        </div>
 
         {/* Divider */}
         <div className="w-full h-px bg-white/15 my-16" />

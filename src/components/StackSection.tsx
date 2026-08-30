@@ -39,7 +39,7 @@ export const StackSection: React.FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-4xl sm:text-6xl md:text-7xl font-extrabold font-syne tracking-tighter text-slate-900 leading-tight"
+            className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl font-extrabold font-syne tracking-tighter text-slate-900 leading-tight break-words"
           >
             {t.stack.titleMain}{' '}
             <span className="relative inline-block px-4">

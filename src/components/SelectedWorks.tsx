@@ -29,7 +29,7 @@ export const SelectedWorks: React.FC<SelectedWorksProps> = ({ onSelectProject })
               {t.works.eyebrow}
             </motion.span>
 
-            <h2 className="text-5xl sm:text-7xl md:text-8xl font-extrabold font-syne tracking-tighter text-slate-900 leading-none">
+            <h2 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold font-syne tracking-tighter text-slate-900 leading-[0.95] break-words">
               {t.works.titleMain} <br />
               <span className="text-[#2563EB]">{t.works.titleHighlight}</span>
             </h2>

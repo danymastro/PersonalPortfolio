@@ -112,7 +112,7 @@ export const Solutions: React.FC<SolutionsProps> = () => {
                 {t.solutions.eyebrow}
               </span>
 
-              <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold font-syne tracking-tighter text-slate-900 leading-[0.95]">
+              <h2 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl font-extrabold font-syne tracking-tighter text-slate-900 leading-[0.95] break-words">
                 {t.solutions.titleMain}
                 <br />
                 <span className="text-[#2563EB]">

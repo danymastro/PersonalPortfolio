@@ -169,7 +169,7 @@ export const VentureSection: React.FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-4xl sm:text-5xl md:text-6xl font-extrabold font-syne tracking-tighter leading-[0.95]"
+            className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-extrabold font-syne tracking-tighter leading-[0.95] break-words"
           >
             {t.venture.titleLead}{' '}
             <span className="text-[#D0FF71]">{t.venture.titleAccent}</span>

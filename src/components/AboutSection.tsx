@@ -75,7 +75,7 @@ export const AboutSection: React.FC<AboutProps> = ({ onOpenContact }) => {
               <span className="px-3 py-1 rounded-full bg-[#F9A8D4] border-2 border-black text-xs font-mono font-bold uppercase tracking-wider inline-block neo-shadow-sm">
                 {t.about.badge}
               </span>
-              <h2 className="text-4xl sm:text-6xl font-extrabold font-syne tracking-tighter text-slate-900 leading-tight">
+              <h2 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-extrabold font-syne tracking-tighter text-slate-900 leading-tight break-words">
                 {t.about.titleLine1} <br />
                 <span className="text-[#2563EB] underline decoration-4 underline-offset-8">
                   {t.about.titleHighlight}
