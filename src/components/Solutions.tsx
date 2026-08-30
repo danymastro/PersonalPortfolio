@@ -112,7 +112,7 @@ export const Solutions: React.FC<SolutionsProps> = () => {
                 {t.solutions.eyebrow}
               </span>
 
-              <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold font-syne tracking-tighter text-slate-900 leading-[0.95]">
+              <h2 className="text-2xl xs:text-3xl sm:text-6xl md:text-7xl font-extrabold font-syne tracking-tighter text-slate-900 leading-[0.95]">
                 {t.solutions.titleMain}
                 <br />
                 <span className="text-[#2563EB]">
@@ -121,7 +121,7 @@ export const Solutions: React.FC<SolutionsProps> = () => {
               </h2>
             </div>
 
-            <p className="text-base sm:text-lg text-slate-600 max-w-sm md:text-right font-medium">
+            <p className="text-sm sm:text-base md:text-lg text-slate-600 max-w-sm md:text-right font-medium">
               {t.solutions.subtitle}
             </p>
           </div>
@@ -130,7 +130,7 @@ export const Solutions: React.FC<SolutionsProps> = () => {
           <div className="overflow-hidden w-full py-2">
             <div
               ref={trackRef}
-              className="flex gap-6 sm:gap-8 will-change-transform items-stretch"
+              className="flex gap-4 sm:gap-8 will-change-transform items-stretch"
             >
               {solutions.map((meta, idx) => {
                 const copy = t.solutions.items[meta.id];
@@ -139,7 +139,7 @@ export const Solutions: React.FC<SolutionsProps> = () => {
                 return (
                   <article
                     key={meta.id}
-                    className="group relative w-[320px] sm:w-[370px] md:w-[400px] shrink-0 p-7 sm:p-8 bg-white border-2 border-black rounded-3xl neo-shadow flex flex-col justify-between gap-6 overflow-hidden transition-transform duration-300 hover:-translate-y-1.5"
+                    className="group relative w-[82vw] xs:w-[320px] sm:w-[370px] md:w-[400px] shrink-0 p-6 sm:p-8 bg-white border-2 border-black rounded-3xl neo-shadow flex flex-col justify-between gap-6 overflow-hidden transition-transform duration-300 hover:-translate-y-1.5"
                   >
                     {/* Colour wash on hover */}
                     <span
