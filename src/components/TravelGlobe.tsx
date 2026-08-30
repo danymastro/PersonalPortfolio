@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plane, MapPin, Compass, Sparkles } from 'lucide-react';
-import { WebGLGlobe, Position } from './ui/globe';
+import { WorldGlobe } from './ui/globe';
 import { useLanguage } from '../i18n/LanguageContext';
 
 export interface TravelDestination {
@@ -10,54 +10,29 @@ export interface TravelDestination {
   flag: string;
   lat: number;
   lng: number;
-  color: string;
 }
 
 const DESTINATIONS: TravelDestination[] = [
-  { id: 'italy', name: 'Italia (Home)', flag: '🇮🇹', lat: 41.56, lng: 14.66, color: '#D0FF71' },
-  { id: 'spain', name: 'Spagna', flag: '🇪🇸', lat: 40.41, lng: -3.70, color: '#FDE047' },
-  { id: 'france', name: 'Francia', flag: '🇫🇷', lat: 48.85, lng: 2.35, color: '#38BDF8' },
-  { id: 'uk', name: 'Regno Unito', flag: '🇬🇧', lat: 51.50, lng: -0.12, color: '#F9A8D4' },
-  { id: 'germany', name: 'Germania', flag: '🇩🇪', lat: 52.52, lng: 13.40, color: '#4ADE80' },
-  { id: 'greece', name: 'Grecia', flag: '🇬🇷', lat: 37.98, lng: 23.72, color: '#60A5FA' },
-  { id: 'netherlands', name: 'Paesi Bassi', flag: '🇳🇱', lat: 52.36, lng: 4.90, color: '#FB923C' },
-  { id: 'usa', name: 'Stati Uniti', flag: '🇺🇸', lat: 40.71, lng: -74.00, color: '#C084FC' },
-  { id: 'japan', name: 'Giappone', flag: '🇯🇵', lat: 35.67, lng: 139.65, color: '#F43F5E' },
+  { id: 'italy', name: 'Italia (Home)', flag: '🇮🇹', lat: 41.56, lng: 14.66 },
+  { id: 'spain', name: 'Spagna', flag: '🇪🇸', lat: 40.41, lng: -3.70 },
+  { id: 'france', name: 'Francia', flag: '🇫🇷', lat: 48.85, lng: 2.35 },
+  { id: 'uk', name: 'Regno Unito', flag: '🇬🇧', lat: 51.50, lng: -0.12 },
+  { id: 'germany', name: 'Germania', flag: '🇩🇪', lat: 52.52, lng: 13.40 },
+  { id: 'greece', name: 'Grecia', flag: '🇬🇷', lat: 37.98, lng: 23.72 },
+  { id: 'netherlands', name: 'Paesi Bassi', flag: '🇳🇱', lat: 52.36, lng: 4.90 },
+  { id: 'usa', name: 'Stati Uniti', flag: '🇺🇸', lat: 40.71, lng: -74.00 },
+  { id: 'japan', name: 'Giappone', flag: '🇯🇵', lat: 35.67, lng: 139.65 },
 ];
-
-// Arcs from Home (Campobasso, Italy) to destinations
-const SAMPLE_ARCS: Position[] = DESTINATIONS.filter((d) => d.id !== 'italy').map((d, i) => ({
-  order: i + 1,
-  startLat: 41.56,
-  startLng: 14.66,
-  endLat: d.lat,
-  endLng: d.lng,
-  arcAlt: 0.25 + (i % 3) * 0.08,
-  color: d.color,
-}));
 
 export const TravelGlobe: React.FC = () => {
   const { language } = useLanguage();
   const isIt = language === 'it';
   const [selectedDest, setSelectedDest] = useState<string | null>(null);
 
-  const globeConfig = {
-    pointSize: 3,
-    globeColor: '#070A13',
-    showAtmosphere: true,
-    atmosphereColor: '#38BDF8',
-    atmosphereAltitude: 0.15,
-    polygonColor: 'rgba(255, 255, 255, 0.75)',
-    emissive: '#040714',
-    emissiveIntensity: 0.2,
-    shininess: 0.9,
-    arcTime: 1800,
-    arcLength: 0.75,
-    rings: 2,
-    maxRings: 4,
-    autoRotate: true,
-    autoRotateSpeed: 0.8,
-  };
+  const markers = DESTINATIONS.map((d) => ({
+    location: [d.lat, d.lng] as [number, number],
+    size: d.id === selectedDest ? 0.12 : d.id === 'italy' ? 0.09 : 0.06,
+  }));
 
   return (
     <div className="relative group w-full my-8">
@@ -133,8 +108,8 @@ export const TravelGlobe: React.FC = () => {
 
           {/* 3D Interactive Globe Canvas */}
           <div className="lg:col-span-7 h-[360px] sm:h-[460px] md:h-[500px] w-full relative flex items-center justify-center">
-            <div className="w-full h-full">
-              <WebGLGlobe globeConfig={globeConfig} data={SAMPLE_ARCS} />
+            <div className="w-full h-full flex items-center justify-center">
+              <WorldGlobe markers={markers} />
             </div>
 
             {/* Interactive Overlay badge */}

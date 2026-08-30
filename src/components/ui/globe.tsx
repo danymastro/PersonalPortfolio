@@ -1,215 +1,133 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Canvas, extend, useThree } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import ThreeGlobe from "three-globe";
-import * as THREE from "three";
-import countries from "./globe.json";
+import React, { useEffect, useRef } from "react";
+import createGlobe, { Marker, Arc } from "cobe";
 
-// Extend ThreeGlobe so Fiber can use it as <threeGlobe />
-extend({ ThreeGlobe });
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      threeGlobe: any;
-    }
-  }
+export interface GlobeProps {
+  className?: string;
+  markers?: Marker[];
+  arcs?: Arc[];
 }
 
-export interface GlobeConfig {
-  pointSize?: number;
-  globeColor?: string;
-  showAtmosphere?: boolean;
-  atmosphereColor?: string;
-  atmosphereAltitude?: number;
-  emissive?: string;
-  emissiveIntensity?: number;
-  shininess?: number;
-  polygonColor?: string;
-  ambientLight?: string;
-  directionalLeftLight?: string;
-  directionalTopLight?: string;
-  pointLight?: string;
-  arcTime?: number;
-  arcLength?: number;
-  rings?: number;
-  maxRings?: number;
-  initialPosition?: {
-    lat: number;
-    lng: number;
-  };
-  autoRotate?: boolean;
-  autoRotateSpeed?: number;
-}
-
-export interface WorldProps {
-  globeConfig: GlobeConfig;
-  data: Position[];
-}
-
-export interface Position {
-  order: number;
-  startLat: number;
-  startLng: number;
-  endLat: number;
-  endLng: number;
-  arcAlt: number;
-  color: string;
-}
-
-const defaultProps: GlobeConfig = {
-  pointSize: 1,
-  atmosphereColor: "#ffffff",
-  showAtmosphere: true,
-  atmosphereAltitude: 0.1,
-  polygonColor: "rgba(255,255,255,0.7)",
-  globeColor: "#1d072e",
-  emissive: "#000000",
-  emissiveIntensity: 0.1,
-  shininess: 0.9,
-  arcTime: 2000,
-  arcLength: 0.9,
-  rings: 1,
-  maxRings: 3,
-  ...defaultPropsConfig(),
-};
-
-function defaultPropsConfig() {
-  return {
-    ambientLight: "#ffffff",
-    directionalLeftLight: "#ffffff",
-    directionalTopLight: "#ffffff",
-    pointLight: "#ffffff",
-  };
-}
-
-export function Globe({ globeConfig, data }: WorldProps) {
-  const globeRef = useRef<ThreeGlobe | null>(null);
-  const [globeData, setGlobeData] = useState<
-    | {
-        size: number;
-        order: number;
-        color: (t: number) => string;
-        lat: number;
-        lng: number;
-      }[]
-    | null
-  >(null);
-
-  const mergedConfig = { ...defaultProps, ...globeConfig };
+export function WorldGlobe({
+  className,
+  markers = [
+    { location: [41.56, 14.66], size: 0.09 }, // Campobasso / Italy (Home Base)
+    { location: [40.41, -3.70], size: 0.06 }, // Spain
+    { location: [48.85, 2.35], size: 0.06 }, // France
+    { location: [51.50, -0.12], size: 0.06 }, // UK
+    { location: [52.52, 13.40], size: 0.06 }, // Germany
+    { location: [37.98, 23.72], size: 0.06 }, // Greece
+    { location: [52.36, 4.90], size: 0.06 }, // Netherlands
+    { location: [40.71, -74.00], size: 0.07 }, // USA
+    { location: [35.67, 139.65], size: 0.07 }, // Japan
+  ],
+  arcs = [
+    { from: [41.56, 14.66], to: [40.41, -3.70] }, // Spain
+    { from: [41.56, 14.66], to: [48.85, 2.35] }, // France
+    { from: [41.56, 14.66], to: [51.50, -0.12] }, // UK
+    { from: [41.56, 14.66], to: [52.52, 13.40] }, // Germany
+    { from: [41.56, 14.66], to: [37.98, 23.72] }, // Greece
+    { from: [41.56, 14.66], to: [52.36, 4.90] }, // Netherlands
+    { from: [41.56, 14.66], to: [40.71, -74.00] }, // USA
+    { from: [41.56, 14.66], to: [35.67, 139.65] }, // Japan
+  ],
+}: GlobeProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pointerInteracting = useRef<number | null>(null);
+  const pointerInteractionMovement = useRef(0);
 
   useEffect(() => {
-    if (!globeRef.current) return;
+    let phi = 0;
+    let width = 0;
+    let animId: number;
 
-    const globe = globeRef.current;
+    const onResize = () => {
+      if (canvasRef.current) {
+        width = canvasRef.current.offsetWidth;
+      }
+    };
+    window.addEventListener("resize", onResize);
+    onResize();
 
-    // Configure globe appearance
-    globe
-      .hexPolygonsData(countries.features)
-      .hexPolygonResolution(3)
-      .hexPolygonMargin(0.7)
-      .showAtmosphere(mergedConfig.showAtmosphere ?? true)
-      .atmosphereColor(mergedConfig.atmosphereColor ?? "#38BDF8")
-      .atmosphereAltitude(mergedConfig.atmosphereAltitude ?? 0.15)
-      .hexPolygonColor(() => mergedConfig.polygonColor ?? "rgba(255, 255, 255, 0.7)");
+    if (!canvasRef.current) return;
 
-    // Arcs
-    globe
-      .arcsData(data)
-      .arcStartLat((d: any) => d.startLat)
-      .arcStartLng((d: any) => d.startLng)
-      .arcEndLat((d: any) => d.endLat)
-      .arcEndLng((d: any) => d.endLng)
-      .arcColor((d: any) => d.color)
-      .arcAltitude((d: any) => d.arcAlt)
-      .arcStroke(() => 0.5)
-      .arcDashLength(mergedConfig.arcLength ?? 0.8)
-      .arcDashInitialGap((e: any) => e.order)
-      .arcDashGap(15)
-      .arcDashAnimateTime(() => mergedConfig.arcTime ?? 2000);
-
-    // Points & Rings
-    const points: any[] = [];
-    data.forEach((arc) => {
-      points.push({
-        size: mergedConfig.pointSize ?? 1,
-        order: arc.order,
-        color: (_t: number) => arc.color,
-        lat: arc.startLat,
-        lng: arc.startLng,
-      });
-      points.push({
-        size: mergedConfig.pointSize ?? 1,
-        order: arc.order,
-        color: (_t: number) => arc.color,
-        lat: arc.endLat,
-        lng: arc.endLng,
-      });
+    const globe = createGlobe(canvasRef.current, {
+      devicePixelRatio: 2,
+      width: (width || 400) * 2,
+      height: (width || 400) * 2,
+      phi: 0,
+      theta: 0.25,
+      dark: 1,
+      diffuse: 1.2,
+      mapSamples: 14000,
+      mapBrightness: 5,
+      baseColor: [0.06, 0.09, 0.18],
+      markerColor: [0.81, 1, 0.44], // #D0FF71 Neon Lime
+      glowColor: [0.22, 0.74, 0.97], // #38BDF8 Cyan
+      arcColor: [0.81, 1, 0.44],
+      arcWidth: 1.2,
+      markers,
+      arcs,
+      scale: 1,
     });
 
-    // Remove duplicates
-    const uniquePoints = points.filter(
-      (v, i, a) => a.findIndex((v2) => v2.lat === v.lat && v2.lng === v.lng) === i
-    );
+    const loop = () => {
+      if (!pointerInteracting.current) {
+        phi += 0.003;
+      }
+      globe.update({
+        phi: phi + pointerInteractionMovement.current,
+        width: (width || 400) * 2,
+        height: (width || 400) * 2,
+      });
+      animId = requestAnimationFrame(loop);
+    };
 
-    setGlobeData(uniquePoints);
-  }, [data]);
+    loop();
 
-  useEffect(() => {
-    if (!globeRef.current || !globeData) return;
-
-    const globe = globeRef.current;
-    const arcTime = mergedConfig.arcTime ?? 2000;
-    const arcLength = mergedConfig.arcLength ?? 0.8;
-    const rings = mergedConfig.rings ?? 2;
-    const maxRings = mergedConfig.maxRings ?? 3;
-
-    globe
-      .ringsData(globeData)
-      .ringColor((e: any) => (t: any) => e.color(t))
-      .ringMaxRadius(maxRings)
-      .ringPropagationSpeed(2)
-      .ringRepeatPeriod((arcTime * arcLength) / rings);
-  }, [globeData]);
+    return () => {
+      cancelAnimationFrame(animId);
+      globe.destroy();
+      window.removeEventListener("resize", onResize);
+    };
+  }, [markers, arcs]);
 
   return (
-    <threeGlobe ref={globeRef} />
-  );
-}
-
-export function WebGLGlobe({ globeConfig, data }: WorldProps) {
-  const mergedConfig = { ...defaultProps, ...globeConfig };
-
-  return (
-    <Canvas
-      camera={{ position: [0, 0, 300], fov: 45 }}
-      style={{ width: "100%", height: "100%", background: "transparent" }}
+    <div
+      className={`relative w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing select-none ${
+        className || ""
+      }`}
+      onPointerDown={(e) => {
+        pointerInteracting.current =
+          e.clientX - pointerInteractionMovement.current;
+      }}
+      onPointerUp={() => {
+        pointerInteracting.current = null;
+      }}
+      onPointerOut={() => {
+        pointerInteracting.current = null;
+      }}
+      onMouseMove={(e) => {
+        if (pointerInteracting.current !== null) {
+          const delta = e.clientX - pointerInteracting.current;
+          pointerInteractionMovement.current = delta * 0.005;
+        }
+      }}
+      onTouchMove={(e) => {
+        if (pointerInteracting.current !== null && e.touches[0]) {
+          const delta = e.touches[0].clientX - pointerInteracting.current;
+          pointerInteractionMovement.current = delta * 0.005;
+        }
+      }}
     >
-      <ambientLight color={mergedConfig.ambientLight} intensity={0.6} />
-      <directionalLight
-        color={mergedConfig.directionalLeftLight}
-        position={[-400, 100, 400]}
-        intensity={0.8}
+      <canvas
+        ref={canvasRef}
+        style={{
+          width: "100%",
+          height: "100%",
+          maxWidth: "520px",
+          aspectRatio: 1,
+        }}
       />
-      <directionalLight
-        color={mergedConfig.directionalTopLight}
-        position={[-200, 500, 200]}
-        intensity={0.8}
-      />
-      <pointLight
-        color={mergedConfig.pointLight}
-        position={[-200, 500, 200]}
-        intensity={0.8}
-      />
-      <Globe globeConfig={mergedConfig} data={data} />
-      <OrbitControls
-        enablePan={false}
-        enableZoom={false}
-        minDistance={220}
-        maxDistance={380}
-        autoRotate={mergedConfig.autoRotate ?? true}
-        autoRotateSpeed={mergedConfig.autoRotateSpeed ?? 1.2}
-      />
-    </Canvas>
+    </div>
   );
 }
