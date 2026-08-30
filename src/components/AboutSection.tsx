@@ -28,22 +28,13 @@ export const AboutSection: React.FC<AboutProps> = ({ onOpenContact }) => {
               <div className="absolute inset-0 bg-[#FDE047] rounded-3xl border-2 border-black rotate-3 neo-shadow" />
 
               <div className="relative bg-[#FFFDF5] border-2 border-black rounded-3xl p-6 sm:p-8 neo-shadow flex flex-col items-center text-center space-y-6">
-                {/* Animated Logo Video with GIF fallback */}
-                <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full bg-[#120D1D] border-4 border-black overflow-hidden relative shadow-inner flex items-center justify-center">
-                  <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover scale-105"
-                  >
-                    <source src="/MascotteAnimata_VibesOut.mp4" type="video/mp4" />
-                    <img
-                      src="/MascotteAnimata_VibesOut.gif"
-                      alt={personal.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </video>
+                {/* Danilo Avatar Image */}
+                <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full bg-[#FDE047] border-4 border-black overflow-hidden relative shadow-inner flex items-center justify-center pt-3">
+                  <img
+                    src={personal.avatar}
+                    alt={personal.name}
+                    className="w-full h-full object-cover scale-110 object-top"
+                  />
                 </div>
 
                 <div className="space-y-1">

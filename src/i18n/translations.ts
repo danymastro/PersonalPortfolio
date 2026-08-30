@@ -462,11 +462,11 @@ const it: TranslationSchema = {
 
   venture: {
     eyebrow: 'Startup & Prodotto Proprietario',
-    titleLead: 'Dall’idea al mercato:',
-    titleAccent: 'costruisco e scalo prodotti da zero.',
+    titleLead: 'Dall’idea',
+    titleAccent: 'al mercato.',
     role: 'Founder & Full-Stack Engineer',
     paragraphs: [
-      'Ho fondato e sviluppato VibesOut da zero: il social layer degli eventi reali che connette le persone prima di arrivare e trasforma ogni serata in un’esperienza vissuta. Dall’app mobile all’infrastruttura, curato al 100%.',
+      'Da 0 porto un prodotto in produzione. Ho fondato e sviluppato VibesOut: il social layer degli eventi reali che connette le persone prima di arrivare e trasforma ogni serata in un’esperienza vissuta. Dall’app mobile all’infrastruttura, curato al 100%.',
     ],
     bullets: [
       'App pubblicata e attiva su iOS e Android',
@@ -925,12 +925,12 @@ const en: TranslationSchema = {
   },
 
   venture: {
-    eyebrow: 'Founder & Venture',
-    titleLead: 'From concept to market:',
-    titleAccent: 'I build and scale real products from scratch.',
+    eyebrow: 'Startup & Proprietary Product',
+    titleLead: 'From idea',
+    titleAccent: 'to market.',
     role: 'Founder & Full-Stack Engineer',
     paragraphs: [
-      'I founded and built VibesOut from scratch: the social layer for real events that connects people before they arrive and turns a night out into a shared experience. From mobile app to infrastructure, built 100% in-house.',
+      'From zero, I bring products all the way to production. I founded and engineered VibesOut from scratch: the real-world events social layer connecting people before arrival and turning nights out into shared experiences. From mobile apps to cloud infra, built 100% end-to-end.',
     ],
     bullets: [
       'Published and active app on iOS and Android',
