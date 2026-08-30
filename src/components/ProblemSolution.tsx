@@ -199,7 +199,7 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({ onOpenContact 
 
             {/* Official Aceternity Keyboard right below terminal (desktop only, hidden on mobile & iPad/tablets) */}
             <div className="hidden lg:flex flex-col items-center justify-center w-full overflow-visible py-2">
-              <Keyboard enableSound={true} showPreview={true} />
+              <Keyboard enableSound={true} />
             </div>
           </motion.div>
         ) : (

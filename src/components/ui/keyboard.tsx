@@ -480,7 +480,6 @@ const KeystrokePreview = () => {
 export const Keyboard = ({
   className,
   enableSound = false,
-  showPreview = false,
 }: {
   className?: string;
   enableSound?: boolean;
@@ -497,7 +496,6 @@ export const Keyboard = ({
           className,
         )}
       >
-        {showPreview && <KeystrokePreview />}
         <Keypad />
       </div>
     </KeyboardProvider>
@@ -897,14 +895,14 @@ const ModifierKey = ({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
         className={cn(
-          "flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset] transition-all duration-75 active:scale-[0.93] active:translate-y-[1.5px]",
+          "flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset] transition-all duration-75 active:scale-[0.96] active:translate-y-[1px]",
           isPressed
-            ? "!bg-[#D0FF71] !translate-y-[2px] !scale-[0.92] !shadow-[0px_0px_12px_rgba(208,255,113,0.9),inset_0_2px_4px_rgba(0,0,0,0.3)] ring-2 ring-[#D0FF71]"
+            ? "scale-[0.96] translate-y-[1px] bg-gray-50 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.6),inset_0_1px_2px_rgba(0,0,0,0.2)]"
             : "hover:bg-white",
           className,
         )}
       >
-        <div className={cn("flex h-full w-full flex-col items-start justify-between p-1 text-[5px] transition-colors duration-75", isPressed ? "!text-black font-extrabold" : "text-neutral-700")}>
+        <div className={cn("flex h-full w-full flex-col items-start justify-between p-1 text-[5px] transition-colors duration-75", isPressed ? "!text-[#16A34A] !font-extrabold" : "text-neutral-700")}>
           {children}
         </div>
       </button>
