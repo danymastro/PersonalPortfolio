@@ -81,10 +81,10 @@ export function Globe3D({
     let width = container.clientWidth || 600;
     let height = container.clientHeight || 600;
 
-    // Scene & Camera
+    // Scene & Camera (Perfect intermediate distance)
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 2000);
-    camera.position.set(0, 0, 205);
+    camera.position.set(0, 0, 235);
     camera.lookAt(0, 0, 0);
 
     // Renderer (100% transparent)
