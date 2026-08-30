@@ -84,7 +84,7 @@ export function Globe3D({
     // Scene & Camera
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 2000);
-    camera.position.set(0, 0, 275);
+    camera.position.set(0, 0, 205);
     camera.lookAt(0, 0, 0);
 
     // Renderer (100% transparent)
@@ -127,7 +127,7 @@ export function Globe3D({
 
     // Group wrapper offset 3/4 to the right & initial Europe front-facing orientation
     const globeGroup = new THREE.Group();
-    globeGroup.position.set(32, 0, 0); // 3/4 visible on right
+    globeGroup.position.set(36, 0, 0); // 3/4 visible on right
     globeGroup.rotation.x = 0.45;
     globeGroup.rotation.y = -3.22; // Europe front-center
     globeGroup.add(globe);

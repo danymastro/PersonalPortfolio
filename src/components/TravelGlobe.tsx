@@ -183,7 +183,7 @@ export const TravelGlobe: React.FC = () => {
           </div>
 
           {/* Right Column: Centered Large 3D Globe without box clipping */}
-          <div className="lg:col-span-7 h-[490px] sm:h-[550px] md:h-[600px] w-full relative flex items-center justify-center">
+          <div className="lg:col-span-7 h-[520px] sm:h-[580px] md:h-[640px] w-full relative flex items-center justify-center">
             <Globe3D
               className="w-full h-full"
               markers={countryMarkers}
