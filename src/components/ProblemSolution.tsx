@@ -4,7 +4,7 @@ import { ArrowRight, Check, Clock, Quote, Terminal, ListFilter } from 'lucide-re
 import { useLanguage } from '../i18n/LanguageContext';
 import { ProblemCopy } from '../i18n/translations';
 import { AIAssistantTerminal } from './AIAssistantTerminal';
-import { AceternityKeyboard } from './ui/AceternityKeyboard';
+import { Keyboard } from './ui/keyboard';
 
 interface ProblemSolutionProps {
   onOpenContact: () => void;
@@ -193,13 +193,13 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({ onOpenContact 
             className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center"
           >
             {/* Terminal on Left */}
-            <div className="lg:col-span-7 w-full">
+            <div className="lg:col-span-6 w-full">
               <AIAssistantTerminal onOpenContact={onOpenContact} />
             </div>
 
-            {/* Keyboard on Right */}
-            <div className="lg:col-span-5 w-full flex flex-col justify-center">
-              <AceternityKeyboard enableSound={true} />
+            {/* Official Aceternity Keyboard on Right */}
+            <div className="lg:col-span-6 w-full flex flex-col items-center justify-center overflow-x-auto py-2">
+              <Keyboard enableSound={true} showPreview={true} />
             </div>
           </motion.div>
         ) : (
