@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /leads
+Disallow: /api/
+
+Sitemap: https://danilomastropaolo-portfolio.pages.dev/sitemap.xml

@@ -3,4 +3,16 @@ compatibility_date = "2024-09-01"
 pages_build_output_dir = "dist"
 
 [vars]
-CONTACT_RECEIVER_EMAIL = "danilomastropaolo.dev@gmail.com"
+CONTACT_RECEIVER_EMAIL = "danilo.mastropaolo05@gmail.com"
+
+# D1 database for the terminal scoping assistant (conversations + rate limiting).
+# One-time setup:
+#   npx wrangler d1 create portfolio-leads
+# then paste the returned database_id below.
+# Secrets (GEMINI_API_KEY, RESEND_API_KEY, LEADS_USER, LEADS_PASSWORD, ...) are set
+# in the Cloudflare Pages dashboard or via `npx wrangler pages secret put <NAME>`.
+[[d1_databases]]
+binding = "DB"
+database_name = "portfolio-leads"
+database_id = "b7a89e4e-5928-4eab-8a34-0931b4003a33"
+migrations_dir = "migrations"

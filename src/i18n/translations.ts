@@ -178,6 +178,26 @@ export interface TranslationSchema {
     errorDesc: string;
     closeBtn: string;
   };
+  assistant: {
+    welcome: string;
+    processing: string;
+    inputPlaceholder: string;
+    sendBtn: string;
+    quickPrompts: string[];
+    talkDirectly: string;
+    progressLabel: string;
+    completeNote: string;
+    requestQuoteBtn: string;
+    briefIntro: string;
+    briefNamePlaceholder: string;
+    briefEmailPlaceholder: string;
+    briefSendBtn: string;
+    briefSendingBtn: string;
+    briefSent: string;
+    briefError: string;
+    offlineNote: string;
+    errorGeneric: string;
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -443,6 +463,20 @@ const it: TranslationSchema = {
           'Sviluppo completo dall’idea al rilascio su iOS, Android e web: interfaccia fluida, sincronizzazione in tempo reale ed elevata affidabilità, guidati dai feedback costanti degli utenti.',
         role: 'Founder · Full-stack · Prodotto & Brand',
       },
+      budokan: {
+        title: 'BUDOKAN KARATE',
+        category: 'Piattaforma & Gestionale',
+        badge: 'Prodotto live',
+        subtitle:
+          'Gestionale completo per la società sportiva e CMS nativo per il sito web con interfaccia grafica realizzata su misura del cliente.',
+        overview:
+          'Ho sviluppato un gestionale completo a 360° per digitalizzare l’intera amministrazione della società sportiva, unito a un CMS nativo e a una UI del sito web progettata interamente su misura in base alle scelte e all’identità visiva richiesta dal cliente.',
+        challenge:
+          'Amministrazione societaria completa: anagrafica atleti, iscrizioni, rinnovi, certificati medici, scadenze e documentazione societaria gestiti in un unico pannello centralizzato.',
+        solution:
+          'CMS nativo & UI personalizzata: interfaccia grafica realizzata su misura della scelta del cliente e pannello integrato per pubblicare in autonomia news, gare, risultati e gallerie.',
+        role: 'Full-Stack Developer · Progettazione & Sviluppo',
+      },
       spotdiary: {
         title: 'SPOTDIARY',
         category: 'Progetto Riservato · iOS',
@@ -640,8 +674,38 @@ const it: TranslationSchema = {
       'Grazie. Leggo il tuo problema e ti rispondo entro 24 ore con una prima ipotesi di soluzione e i tempi indicativi.',
     errorTitle: 'Si è verificato un errore',
     errorDesc:
-      'Non sono riuscito a inviare il messaggio in automatico. Scrivimi direttamente a danilomastropaolo.dev@gmail.com',
+      'Non sono riuscito a inviare il messaggio in automatico. Scrivimi direttamente a danilo.mastropaolo05@gmail.com',
     closeBtn: 'Fatto',
+  },
+
+  assistant: {
+    welcome:
+      '➜  ~  Assistente di Danilo attivo. Raccontami cosa vuoi realizzare: ti faccio due domande veloci e passo tutto a Danilo, che ti risponde via email con una prima ipotesi e i tempi.',
+    processing: 'Sto pensando…',
+    inputPlaceholder: 'Scrivi qui il tuo progetto o la tua domanda…',
+    sendBtn: 'Invia',
+    quickPrompts: [
+      'Devo lanciare un MVP in 2 settimane',
+      'Voglio lanciare un brand (logo, video e sito)',
+      'Ho un design Figma pronto da sviluppare',
+      'Serve un’app iOS / Android completa',
+    ],
+    talkDirectly: 'Parliamone direttamente',
+    progressLabel: 'aree coperte',
+    completeNote:
+      '✓ Riepilogo pronto. Lascia la tua email qui sotto e Danilo ti risponde con una prima ipotesi di soluzione e tempi.',
+    requestQuoteBtn: 'Invia il riepilogo a Danilo',
+    briefIntro: 'Dove ti mando la prima ipotesi di soluzione?',
+    briefNamePlaceholder: 'Nome (facoltativo)',
+    briefEmailPlaceholder: 'La tua email',
+    briefSendBtn: 'Invia a Danilo',
+    briefSendingBtn: 'Invio…',
+    briefSent:
+      '✓ Fatto. Danilo ha ricevuto il riepilogo della nostra chat e ti risponde via email a breve.',
+    briefError: 'Non sono riuscito a inviare il riepilogo. Riprova o usa il form contatti.',
+    offlineNote:
+      'ℹ  L’assistente AI risponde solo online (in locale serve `wrangler pages dev`). Qui trovi comunque i contatti diretti di Danilo.',
+    errorGeneric: 'Qualcosa è andato storto, riprova tra poco.',
   },
 };
 
@@ -908,6 +972,20 @@ const en: TranslationSchema = {
           'End-to-end execution from concept to release on iOS, Android and web: fluid UX, real-time sync and rock-solid reliability driven by active user feedback.',
         role: 'Founder · Full-stack · Product & Brand',
       },
+      budokan: {
+        title: 'BUDOKAN KARATE',
+        category: 'Platform & Custom Management System',
+        badge: 'Live product',
+        subtitle:
+          'Complete sports club management software and native website CMS with custom UI tailored to the client’s specifications.',
+        overview:
+          'Designed and developed a complete 360° management platform for the entire sports club administration, paired with a native CMS and a website UI custom-designed to the client’s exact preferences and brand identity.',
+        challenge:
+          'Full club administration: athlete registry, enrollments, renewals, medical certificate tracking, and administrative documents unified in one dashboard.',
+        solution:
+          'Native CMS & Tailored UI: a custom user interface built to the client’s choices, featuring an integrated panel to autonomously manage news, events, competition results, and media galleries.',
+        role: 'Full-Stack Developer · Product Design & Engineering',
+      },
       spotdiary: {
         title: 'SPOTDIARY',
         category: 'Stealth Project · iOS',
@@ -1102,8 +1180,38 @@ const en: TranslationSchema = {
       'Thank you. I’ll read your problem and reply within 24 hours with a first idea of the solution and a rough timeline.',
     errorTitle: 'Something went wrong',
     errorDesc:
-      'I could not send the message automatically. Please write directly to danilomastropaolo.dev@gmail.com',
+      'I could not send the message automatically. Please write directly to danilo.mastropaolo05@gmail.com',
     closeBtn: 'Done',
+  },
+
+  assistant: {
+    welcome:
+      '➜  ~  Danilo’s assistant is online. Tell me what you want to build: I’ll ask a couple of quick questions and hand everything to Danilo, who replies by email with a first take and timeline.',
+    processing: 'Thinking…',
+    inputPlaceholder: 'Describe your project or ask a question…',
+    sendBtn: 'Send',
+    quickPrompts: [
+      'I need an MVP shipped in 2 weeks',
+      'I want to launch a full brand (logo, video & web)',
+      'I have a Figma design ready to build',
+      'I need a complete iOS / Android app',
+    ],
+    talkDirectly: 'Talk directly',
+    progressLabel: 'areas covered',
+    completeNote:
+      '✓ Summary ready. Drop your email below and Danilo will get back to you with a first take on the solution and timeline.',
+    requestQuoteBtn: 'Send the summary to Danilo',
+    briefIntro: 'Where should Danilo send the first take?',
+    briefNamePlaceholder: 'Name (optional)',
+    briefEmailPlaceholder: 'Your email',
+    briefSendBtn: 'Send to Danilo',
+    briefSendingBtn: 'Sending…',
+    briefSent:
+      '✓ Done. Danilo received the summary of our chat and will reply by email shortly.',
+    briefError: 'I could not send the summary. Try again or use the contact form.',
+    offlineNote:
+      'ℹ  The AI assistant only replies online (locally it needs `wrangler pages dev`). Danilo’s direct contacts are still here.',
+    errorGeneric: 'Something went wrong, please try again shortly.',
   },
 };
 

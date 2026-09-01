@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, Terminal, Send, ArrowRight } from 'lucide-react';
+import { Send, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 interface Message {
@@ -12,102 +12,171 @@ interface AIAssistantTerminalProps {
   onOpenContact: () => void;
 }
 
-export const AIAssistantTerminal: React.FC<AIAssistantTerminalProps> = ({ onOpenContact }) => {
-  const { language } = useLanguage();
-  const isIt = language === 'it';
+const CID_KEY = 'danilo_assistant_cid';
 
-  const defaultWelcome = isIt
-    ? '➜  ~  Assistente Danilo AI attivo. Raccontami cosa devi realizzare o scegli un prompt rapido:'
-    : '➜  ~  Danilo AI Assistant online. Tell me what you need to build or pick a quick prompt:';
+/** Tiny offline responder — only used on localhost when the Pages Function isn't served. */
+const offlineReply = (query: string, isIt: boolean): string => {
+  const q = query.toLowerCase();
+  if (/(brand|logo|video|shooting|grafica|pacchetto)/.test(q)) {
+    return isIt
+      ? '🎬 Danilo gestisce l’intero pacchetto di lancio come referente unico: foto, video, branding e sviluppo web coordinati insieme.'
+      : '🎬 Danilo runs the full launch package as your single point of contact: photo, video, branding and web build coordinated together.';
+  }
+  if (/(mvp|settiman|veloce|lanciare|weeks?|launch)/.test(q)) {
+    return isIt
+      ? '⚡ Per un MVP funzionante lo standard è 7–14 giorni: architettura pulita, full-stack, deploy in produzione.'
+      : '⚡ For a working MVP the standard is 7–14 days: clean architecture, full-stack, production deploy.';
+  }
+  if (/(prezz|preventiv|budget|costo|pricing|cost)/.test(q)) {
+    return isIt
+      ? '💼 Prezzo fisso con milestone chiare, niente tariffa oraria a sorpresa.'
+      : '💼 Fixed price with clear milestones, no hourly surprises.';
+  }
+  return isIt
+    ? '💡 Danilo può occuparsi del progetto end-to-end, dall’architettura al rilascio. Usa “Parliamone direttamente” per scrivergli.'
+    : '💡 Danilo can handle the project end-to-end, from architecture to launch. Use “Talk directly” to reach him.';
+};
+
+export const AIAssistantTerminal: React.FC<AIAssistantTerminalProps> = ({ onOpenContact }) => {
+  const { language, t } = useLanguage();
+  const isIt = language === 'it';
+  const a = t.assistant;
 
   const [messages, setMessages] = useState<Message[]>([
-    { id: '1', sender: 'system', text: defaultWelcome },
+    { id: 'welcome', sender: 'system', text: a.welcome },
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null);
+  const [isComplete, setIsComplete] = useState(false);
+
+  const [briefOpen, setBriefOpen] = useState(false);
+  const [briefName, setBriefName] = useState('');
+  const [briefEmail, setBriefEmail] = useState('');
+  const [briefStatus, setBriefStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const quickPrompts = isIt
-    ? [
-        'Devo lanciare un MVP in 2 settimane',
-        'Voglio lanciare un brand (logo, video e sito)',
-        'Ho un design Figma pronto da sviluppare',
-        'Serve un’app iOS / Android completa',
-      ]
-    : [
-        'I need an MVP shipped in 2 weeks',
-        'I want to launch a full brand (logo, video & web)',
-        'I have a Figma design ready to build',
-        'I need a complete iOS / Android app',
-      ];
+  // Restore conversation id across refreshes (transcript itself lives server-side).
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(CID_KEY);
+      if (saved) setConversationId(saved);
+    } catch {
+      /* sessionStorage unavailable — fine */
+    }
+  }, []);
+
+  // Keep the welcome line in sync with language while the chat is still empty.
+  useEffect(() => {
+    setMessages((prev) =>
+      prev.length === 1 && prev[0].id === 'welcome'
+        ? [{ id: 'welcome', sender: 'system', text: a.welcome }]
+        : prev
+    );
+  }, [a.welcome]);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, isProcessing]);
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages, isProcessing, briefOpen]);
 
-  const generateAnswer = (query: string): string => {
-    const q = query.toLowerCase();
-
-    if (q.includes('brand') || q.includes('logo') || q.includes('video') || q.includes('foto') || q.includes('shooting') || q.includes('grafica') || q.includes('pacchetto')) {
-      return isIt
-        ? '🎬 Gestisco l’intero pacchetto di lancio come referente unico: coordino direttamente studi partner di fotografia, videomaking e branding (logo vettoriale e grafiche) e sviluppo la piattaforma web. Risultato: brand coerente, tempi dimezzati e zero mal di testa per coordinare agenzie separate.'
-        : '🎬 I handle full turnkey brand launches as your single point of contact: I coordinate partner studios for photography, promo videos, and branding (vector logos & graphic identity) while building the web platform end-to-end. One unified project, zero agency friction.';
-    }
-
-    if (q.includes('mvp') || q.includes('2 settimane') || q.includes('settimane') || q.includes('veloce') || q.includes('lanciare') || q.includes('2 weeks') || q.includes('launch')) {
-      return isIt
-        ? '⚡ Per un MVP funzionante il mio standard è 7-14 giorni: architettura pulita, sviluppo full-stack, design reattivo e deploy in produzione pronto per i primi utenti reali.'
-        : '⚡ For a functioning MVP, my turnaround is 7-14 days: clean architecture, full-stack development, responsive UI, and production deploy ready for real users.';
-    }
-
-    if (q.includes('figma') || q.includes('design') || q.includes('ui') || q.includes('mockup')) {
-      return isIt
-        ? '🎨 Traduco qualsiasi file Figma in codice web e mobile pixel-perfect, con animazioni fluide, performance al millisecondo e zero distorsioni grafiche.'
-        : '🎨 I convert Figma designs into pixel-perfect web and mobile apps, with fluid micro-interactions and top-tier performance.';
-    }
-
-    if (q.includes('ios') || q.includes('android') || q.includes('app') || q.includes('mobile') || q.includes('swift')) {
-      return isIt
-        ? '📱 Sviluppo applicazioni mobile native e cross-platform con backend real-time, notifiche push, autenticazione sicura e rilascio diretto su App Store e Google Play.'
-        : '📱 I build native and cross-platform mobile apps with real-time backends, push notifications, auth, and store submission to App Store and Google Play.';
-    }
-
-    if (q.includes('cost') || q.includes('prezz') || q.includes('preventiv') || q.includes('budget') || q.includes('temp') || q.includes('pricing') || q.includes('time')) {
-      return isIt
-        ? '💼 Lavoro a prezzo fisso con deliverable e milestone chiare (nessuna tariffa oraria nascosta). Possiamo definire lo scope e iniziare subito.'
-        : '💼 I work on fixed-price deliverables with clear milestones (no open-ended hourly surprises). We can define the scope and get started right away.';
-    }
-
-    if (q.includes('vibesout') || q.includes('prodotto') || q.includes('founder') || q.includes('esperienza') || q.includes('chi sei')) {
-      return isIt
-        ? '🚀 Sono Danilo Mastropaolo, Full-Stack Engineer e founder di VibesOut. Combino product strategy, vibe coding con AI avanzata e codice solido in produzione.'
-        : '🚀 I’m Danilo Mastropaolo, Full-Stack Engineer and founder of VibesOut. I combine product strategy, AI-accelerated engineering, and rock-solid code in production.';
-    }
-
-    return isIt
-      ? '💡 Posso occuparmi del progetto end-to-end: dall’ideazione all’architettura, frontend, backend e rilascio. Clicca su "Parliamone" per pianificare la roadmap.'
-      : '💡 I can handle your project end-to-end: from UI/UX and architecture to full-stack implementation and launch. Click "Let\'s talk" to plan the roadmap.';
-  };
+  const pushMessage = (sender: Message['sender'], text: string) =>
+    setMessages((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, sender, text }]);
 
   const handleSendMessage = async (textToSend?: string) => {
-    const text = textToSend || inputValue.trim();
-    if (!text || isProcessing) return;
+    const text = (textToSend || inputValue).trim();
+    if (!text || isProcessing || isComplete) return;
 
     setInputValue('');
-    const userMsg: Message = { id: String(Date.now()), sender: 'user', text };
-    setMessages((prev) => [...prev, userMsg]);
+    pushMessage('user', text);
     setIsProcessing(true);
 
-    // Realistic AI processing pause
-    setTimeout(() => {
-      const reply = generateAnswer(text);
-      const botMsg: Message = { id: String(Date.now() + 1), sender: 'bot', text: reply };
-      setMessages((prev) => [...prev, botMsg]);
+    try {
+      const res = await fetch('/api/assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId, message: text, lang: language }),
+      });
+
+      if (!res.ok) {
+        // Local Vite dev: the Pages Function isn't served — degrade gracefully.
+        if (res.status === 404 && window.location.hostname === 'localhost') {
+          pushMessage('system', a.offlineNote);
+          pushMessage('bot', offlineReply(text, isIt));
+          return;
+        }
+        const data = await res.json().catch(() => ({}));
+        pushMessage('system', data.error || a.errorGeneric);
+        return;
+      }
+
+      const data = (await res.json()) as {
+        conversationId: string;
+        reply: string;
+        progress: { completed: number; total: number };
+        isComplete: boolean;
+      };
+
+      if (data.conversationId && data.conversationId !== conversationId) {
+        setConversationId(data.conversationId);
+        try {
+          sessionStorage.setItem(CID_KEY, data.conversationId);
+        } catch {
+          /* ignore */
+        }
+      }
+      pushMessage('bot', data.reply);
+      if (data.progress) setProgress(data.progress);
+      if (data.isComplete) {
+        setIsComplete(true);
+        setBriefOpen(true);
+        pushMessage('system', a.completeNote);
+      }
+    } catch {
+      if (window.location.hostname === 'localhost') {
+        pushMessage('system', a.offlineNote);
+        pushMessage('bot', offlineReply(text, isIt));
+      } else {
+        pushMessage('system', a.errorGeneric);
+      }
+    } finally {
       setIsProcessing(false);
-    }, 600);
+    }
   };
+
+  const handleSendBrief = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!conversationId || briefStatus === 'sending') return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(briefEmail.trim())) return;
+
+    setBriefStatus('sending');
+    try {
+      const res = await fetch('/api/brief', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId,
+          contactEmail: briefEmail.trim(),
+          contactName: briefName.trim() || undefined,
+        }),
+      });
+      if (!res.ok && !(res.status === 404 && window.location.hostname === 'localhost')) {
+        pushMessage('system', a.briefError);
+        setBriefStatus('idle');
+        return;
+      }
+      setBriefStatus('sent');
+      setBriefOpen(false);
+      pushMessage('system', a.briefSent);
+    } catch {
+      pushMessage('system', a.briefError);
+      setBriefStatus('idle');
+    }
+  };
+
+  const canRequestQuote =
+    !!conversationId && briefStatus !== 'sent' && messages.some((m) => m.sender === 'bot');
 
   return (
     <div className="w-full bg-[#0F0F0F] border-2 border-white/20 rounded-3xl shadow-2xl overflow-hidden flex flex-col font-mono text-xs sm:text-sm neo-shadow-lg text-slate-200">
@@ -120,15 +189,32 @@ export const AIAssistantTerminal: React.FC<AIAssistantTerminalProps> = ({ onOpen
             <span className="w-3 h-3 rounded-full bg-[#10B981] border border-black/40 inline-block" />
           </div>
           <span className="ml-2 text-[11px] text-white/50 font-bold tracking-wider truncate">
-            danilo-ai-assistant — v2.4
+            danilo-ai-assistant — v3.0
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span>ONLINE</span>
+        <div className="flex items-center gap-2">
+          {progress && (
+            <span className="hidden sm:inline text-[10px] font-bold text-white/40 tabular-nums">
+              {progress.completed}/{progress.total} {a.progressLabel}
+            </span>
+          )}
+          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>ONLINE</span>
+          </div>
         </div>
       </div>
+
+      {/* Progress bar */}
+      {progress && (
+        <div className="h-1 w-full bg-white/5 shrink-0">
+          <div
+            className="h-full bg-[#D0FF71] transition-all duration-500"
+            style={{ width: `${(progress.completed / progress.total) * 100}%` }}
+          />
+        </div>
+      )}
 
       {/* Terminal Messages Area */}
       <div
@@ -139,7 +225,7 @@ export const AIAssistantTerminal: React.FC<AIAssistantTerminalProps> = ({ onOpen
         {messages.map((m) => {
           if (m.sender === 'system') {
             return (
-              <div key={m.id} className="text-emerald-400">
+              <div key={m.id} className="text-emerald-400 whitespace-pre-wrap">
                 {m.text}
               </div>
             );
@@ -148,14 +234,14 @@ export const AIAssistantTerminal: React.FC<AIAssistantTerminalProps> = ({ onOpen
             return (
               <div key={m.id} className="flex items-start gap-2 text-white">
                 <span className="text-[#38BDF8] shrink-0">➜</span>
-                <span className="text-slate-100 font-semibold">{m.text}</span>
+                <span className="text-slate-100 font-semibold whitespace-pre-wrap">{m.text}</span>
               </div>
             );
           }
           return (
             <div
               key={m.id}
-              className="text-slate-200 border-l-2 border-[#D0FF71] pl-3 py-1 bg-white/[0.03] rounded-r-lg"
+              className="text-slate-200 border-l-2 border-[#D0FF71] pl-3 py-1 bg-white/[0.03] rounded-r-lg whitespace-pre-wrap"
             >
               {m.text}
             </div>
@@ -165,8 +251,44 @@ export const AIAssistantTerminal: React.FC<AIAssistantTerminalProps> = ({ onOpen
         {isProcessing && (
           <div className="flex items-center gap-2 text-white/40 italic">
             <span className="text-[#38BDF8]">➜</span>
-            <span>Danilo AI is formulating response...</span>
+            <span>{a.processing}</span>
           </div>
+        )}
+
+        {/* Brief mini-form */}
+        {briefOpen && (
+          <form
+            onSubmit={handleSendBrief}
+            className="border-l-2 border-[#FDE047] pl-3 py-2 bg-white/[0.03] rounded-r-lg space-y-2"
+          >
+            <p className="text-white/70 text-[11px] sm:text-xs">{a.briefIntro}</p>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="text"
+                value={briefName}
+                onChange={(e) => setBriefName(e.target.value)}
+                placeholder={a.briefNamePlaceholder}
+                className="flex-1 bg-[#121214] border border-white/15 rounded-lg px-2.5 py-1.5 text-white text-xs outline-none focus:border-[#D0FF71]"
+                autoComplete="name"
+              />
+              <input
+                type="email"
+                required
+                value={briefEmail}
+                onChange={(e) => setBriefEmail(e.target.value)}
+                placeholder={a.briefEmailPlaceholder}
+                className="flex-1 bg-[#121214] border border-white/15 rounded-lg px-2.5 py-1.5 text-white text-xs outline-none focus:border-[#D0FF71]"
+                autoComplete="email"
+              />
+              <button
+                type="submit"
+                disabled={briefStatus === 'sending'}
+                className="px-3.5 py-1.5 rounded-lg bg-[#D0FF71] text-black font-bold text-xs hover:bg-[#FDE047] disabled:opacity-40 transition-colors cursor-pointer shrink-0"
+              >
+                {briefStatus === 'sending' ? a.briefSendingBtn : a.briefSendBtn}
+              </button>
+            </div>
+          </form>
         )}
       </div>
 
@@ -184,22 +306,19 @@ export const AIAssistantTerminal: React.FC<AIAssistantTerminalProps> = ({ onOpen
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder={
-            isIt
-              ? 'Scrivi qui il tuo problema o progetto...'
-              : 'Describe your problem or project here...'
-          }
-          className="flex-1 bg-transparent border-none outline-none text-white text-xs sm:text-sm placeholder-white/30 focus:ring-0"
+          disabled={isComplete}
+          placeholder={a.inputPlaceholder}
+          className="flex-1 bg-transparent border-none outline-none text-white text-xs sm:text-sm placeholder-white/30 focus:ring-0 disabled:opacity-40"
           autoComplete="off"
           spellCheck="false"
         />
         <button
           type="submit"
-          disabled={!inputValue.trim() || isProcessing}
-          aria-label="Send"
+          disabled={!inputValue.trim() || isProcessing || isComplete}
+          aria-label={a.sendBtn}
           className="px-3.5 py-1.5 rounded-xl bg-[#D0FF71] text-black font-bold text-xs flex items-center gap-1.5 hover:bg-[#FDE047] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          <span>{isIt ? 'Invia' : 'Send'}</span>
+          <span>{a.sendBtn}</span>
           <Send className="w-3 h-3" />
         </button>
       </form>
@@ -207,16 +326,27 @@ export const AIAssistantTerminal: React.FC<AIAssistantTerminalProps> = ({ onOpen
       {/* Quick Prompts & CTA Strip */}
       <div className="p-4 bg-[#18181B] border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
         <div className="flex flex-wrap items-center gap-2">
-          {quickPrompts.map((p, i) => (
+          {!isComplete &&
+            a.quickPrompts.map((p, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => handleSendMessage(p)}
+                disabled={isProcessing}
+                className="px-2.5 py-1 bg-white/5 hover:bg-white/15 border border-white/10 rounded-lg text-[10px] sm:text-[11px] font-mono text-white/70 hover:text-white transition-colors cursor-pointer text-left truncate max-w-[260px] sm:max-w-none disabled:opacity-40"
+              >
+                “{p}”
+              </button>
+            ))}
+          {canRequestQuote && !briefOpen && (
             <button
-              key={i}
               type="button"
-              onClick={() => handleSendMessage(p)}
-              className="px-2.5 py-1 bg-white/5 hover:bg-white/15 border border-white/10 rounded-lg text-[10px] sm:text-[11px] font-mono text-white/70 hover:text-white transition-colors cursor-pointer text-left truncate max-w-[260px] sm:max-w-none"
+              onClick={() => setBriefOpen(true)}
+              className="px-2.5 py-1 bg-[#D0FF71]/15 hover:bg-[#D0FF71]/25 border border-[#D0FF71]/40 rounded-lg text-[10px] sm:text-[11px] font-mono font-bold text-[#D0FF71] transition-colors cursor-pointer"
             >
-              “{p}”
+              {a.requestQuoteBtn}
             </button>
-          ))}
+          )}
         </div>
 
         <button
@@ -224,7 +354,7 @@ export const AIAssistantTerminal: React.FC<AIAssistantTerminalProps> = ({ onOpen
           onClick={onOpenContact}
           className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white text-black font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-[#D0FF71] transition-colors cursor-pointer shrink-0"
         >
-          <span>{isIt ? 'Parliamone direttamente' : 'Talk directly'}</span>
+          <span>{a.talkDirectly}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>

@@ -1,0 +1,18 @@
+# Copy to `.dev.vars` for local `wrangler pages dev`. Never commit `.dev.vars`.
+# In production these are set in the Cloudflare Pages dashboard (Settings →
+# Environment variables) or via `npx wrangler pages secret put <NAME>`.
+
+# --- Terminal scoping assistant (required) ---
+GEMINI_API_KEY=""
+# Optional, defaults to gemini-3.6-flash
+GEMINI_MODEL="gemini-3.6-flash"
+
+# --- Email delivery (shared with /api/contact) ---
+# If empty, the brief email is skipped and logged as a mock.
+RESEND_API_KEY=""
+CONTACT_RECEIVER_EMAIL="danilo.mastropaolo05@gmail.com"
+FROM_EMAIL="Portfolio Assistant <onboarding@resend.dev>"
+
+# --- /leads dashboard (HTTP Basic Auth) ---
+LEADS_USER="danilo"
+LEADS_PASSWORD="change-me"

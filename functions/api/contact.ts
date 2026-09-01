@@ -43,7 +43,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }) => 
     }
 
     const resendApiKey = env.RESEND_API_KEY;
-    const receiverEmail = env.CONTACT_RECEIVER_EMAIL || 'danilomastropaolo.dev@gmail.com';
+    const receiverEmail = env.CONTACT_RECEIVER_EMAIL || 'danilo.mastropaolo05@gmail.com';
     const fromEmail = env.FROM_EMAIL || 'Portfolio Contact <onboarding@resend.dev>';
 
     // If no API key configured yet (e.g. initial setup test), return mock success with warning
@@ -109,7 +109,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }) => 
       );
     }
 
-    const resendData = await resendResponse.json();
+    const resendData = (await resendResponse.json()) as { id?: string };
     return new Response(
       JSON.stringify({ success: true, id: resendData.id }),
       { status: 200, headers: corsHeaders }

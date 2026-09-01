@@ -390,6 +390,7 @@ export function Globe3D({
               <span className="text-base leading-none select-none">
                 {marker.flag || "📍"}
               </span>
+
             </div>
           </div>
         );
